@@ -22,8 +22,8 @@ $lang['qso_notes_helptext'] = 'Not içeriği yalnızca Cloudlog içinde kullanı
 // Button Text on /qso Display
 
 $lang['qso_btn_reset_qso'] = 'Baştan başla';
-$lang['qso_btn_save_qso'] = 'QSOyu kaydet';
-$lang['qso_btn_edit_qso'] = 'QSOyu düzenle';
+$lang['qso_btn_save_qso'] = 'QSO\'yu kaydet';
+$lang['qso_btn_edit_qso'] = 'QSO\'yu düzenle';
 
 // QSO Details
 
