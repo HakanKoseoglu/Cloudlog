@@ -2,22 +2,22 @@
 
 defined('BASEPATH') OR exit('Doğrudan komut dosyası erişimine izin verilmez');
 
-$lang['notes_menu_notes'] = 'Notes';
-$lang['notes_edit_note'] = 'Edit Note';
-$lang['notes_your_notes'] = 'Your Notes';
+$lang['notes_menu_notes'] = 'Notlar';
+$lang['notes_edit_note'] = 'Notu düzenle';
+$lang['notes_your_notes'] = 'Notlarınız';
 
-$lang['notes_welcome'] = "You don't currently have any notes, these are a fantastic way of storing data like ATU settings, beacons and general station notes and its better than paper as you can't lose them!";
+$lang['notes_welcome'] = "Şu anda bir notunuz yok. bunlar ATU ayarları, işaretçiler ve genel istasyon notları gibi verileri saklamanın harika bir yoludur ve onları kaybetmemeniz için kağıttan daha iyidir!";
 
-$lang['notes_create_note'] = 'Create Note';
+$lang['notes_create_note'] = 'Not yarat';
 
-$lang['notes_input_title'] = 'Title';
-$lang['notes_input_category'] = 'Category';
-$lang['notes_input_notes_content'] = 'Note Contents';
-$lang['notes_input_btn_save_note'] = 'Save Note';
-$lang['notes_input_btn_edit_note'] = 'Edit Note';
-$lang['notes_input_btn_delete_note'] = 'Delete Note';
+$lang['notes_input_title'] = 'Başlık';
+$lang['notes_input_category'] = 'Sınıf';
+$lang['notes_input_notes_content'] = 'Not içeriği';
+$lang['notes_input_btn_save_note'] = 'Notu kaydet';
+$lang['notes_input_btn_edit_note'] = 'Notu düzenle';
+$lang['notes_input_btn_delete_note'] = 'Notu sil';
 
-$lang['notes_selection_general'] = 'General';
-$lang['notes_selection_antennas'] = 'Antennas';
-$lang['notes_selection_satellites'] = 'Satellites';
+$lang['notes_selection_general'] = 'Genel';
+$lang['notes_selection_antennas'] = 'Antenler';
+$lang['notes_selection_satellites'] = 'Uydular';
 
