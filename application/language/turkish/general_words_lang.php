@@ -27,9 +27,9 @@ $lang['general_word_total'] = 'Toplam';
 $lang['general_word_year'] = 'Yıl';
 $lang['general_word_month'] = 'Ay';
 
-$lang['general_word_worked'] = 'Calışılanlar';
+$lang['general_word_worked'] = 'Çalışılanlar';
 $lang['general_word_confirmed'] = 'Onaylanan';
-$lang['general_word_needed'] = 'Gereken';
+$lang['general_word_needed'] = 'İstenenler';
 
 $lang['general_word_no'] = 'Hayır';
 $lang['general_word_yes'] = 'Evet';
@@ -46,8 +46,8 @@ $lang['general_word_qslcard_bureau'] = 'Büro';
 $lang['general_word_qslcard_via'] = 'üzerinden';
 
 $lang['general_edit_qso'] = 'QSO değiştirme';
-$lang['general_mark_qsl_rx_bureau'] = 'QSL\'yi alındı Olarak İşaretle (Büro)';
-$lang['general_mark_qsl_rx_direct'] = 'QSL\'yi alındı Olarak İşaretle (Direkt)';
+$lang['general_mark_qsl_rx_bureau'] = 'QSL\'i alındı Olarak İşaretle (Büro)';
+$lang['general_mark_qsl_rx_direct'] = 'QSL\'i alındı Olarak İşaretle (Direkt)';
 
 $lang['general_delete_qso'] = 'QSO\'yu sil';
 
@@ -76,7 +76,7 @@ $lang['gen_hamradio_exchange_sent_short'] = 'Exch (G)';
 $lang['gen_hamradio_exchange_recv_short'] = 'Exch (A)';
 $lang['gen_hamradio_qsl'] = 'QSL';
 $lang['gen_hamradio_locator'] = 'Locator';
-$lang['gen_hamradio_transmit_power'] = 'Yayınq Gücü (W)';
+$lang['gen_hamradio_transmit_power'] = 'Yayın Gücü (W)';
 $lang['gen_hamradio_propagation_mode'] = 'Yayın Mode';
 
 $lang['gen_hamradio_satellite_name'] = 'Uydu Adı';
@@ -107,4 +107,4 @@ $lang['dashboard_countries_breakdown'] = 'Ülke Analizi';
 
 $lang['gen_from_date'] = 'Tarihten itibaren';
 
-$lang['gen_this_qso_was_confirmed_on'] = 'Bu QSOnun onaylandığı tarih';
+$lang['gen_this_qso_was_confirmed_on'] = 'Bu QSO\'nun onaylandığı tarih';

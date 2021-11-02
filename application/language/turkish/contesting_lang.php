@@ -11,8 +11,8 @@ $lang['contesting_exchange_type_other'] = 'Diğer';
 
 $lang['contesting_contest_name'] = 'Yarışma İsmi';
 
-$lang['contesting_btn_reset_qso'] = 'QSOyu baştan başlat';
-$lang['contesting_btn_save_qso'] = 'QSOyu kaydet';
+$lang['contesting_btn_reset_qso'] = 'QSO\'yu baştan başlat';
+$lang['contesting_btn_save_qso'] = 'QSO\'yu kaydet';
 
 $lang['contesting_title_callsign_suggestions'] = 'Çağrı Kodu Önerileri';
 $lang['contesting_title_contest_logbook'] = 'Yarışma kayıt kitabı';
