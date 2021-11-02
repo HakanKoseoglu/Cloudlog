@@ -1,6 +1,6 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') OR exit('Doğrudan komut dosyası erişimine izin verilmez');
 
 $lang['contesting_page_title'] = 'Contest Logging';
 $lang['contesting_button_reset_contest_session'] = 'Yarışma oturumunu baştan başlat';

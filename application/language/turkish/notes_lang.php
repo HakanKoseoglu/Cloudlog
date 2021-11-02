@@ -1,6 +1,6 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') OR exit('Doğrudan komut dosyası erişimine izin verilmez');
 
 $lang['notes_menu_notes'] = 'Notes';
 $lang['notes_edit_note'] = 'Edit Note';

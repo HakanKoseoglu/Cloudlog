@@ -1,6 +1,6 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') OR exit('Doğrudan komut dosyası erişimine izin verilmez');
 
 $lang['error_no_active_station_profile'] = 'Attention: you need to set an active station location.';
 
