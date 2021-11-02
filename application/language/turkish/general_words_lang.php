@@ -76,7 +76,7 @@ $lang['gen_hamradio_exchange_sent_short'] = 'Exch (G)';
 $lang['gen_hamradio_exchange_recv_short'] = 'Exch (A)';
 $lang['gen_hamradio_qsl'] = 'QSL';
 $lang['gen_hamradio_locator'] = 'Locator';
-$lang['gen_hamradio_transmit_power'] = 'Yayın Gücü (W)';
+$lang['gen_hamradio_transmit_power'] = 'Yayınq Gücü (W)';
 $lang['gen_hamradio_propagation_mode'] = 'Yayın Mode';
 
 $lang['gen_hamradio_satellite_name'] = 'Uydu Adı';
@@ -92,6 +92,9 @@ $lang['gen_hamradio_iota_reference'] = 'IOTA Referansı';
 $lang['gen_hamradio_sota_reference'] = 'SOTA Referansı';
 $lang['gen_hamradio_wwff_reference'] = 'WWFF Referansı';
 $lang['gen_hamradio_dok'] = 'DOK';
+$lang['gen_hamradio_state'] = 'Eyalet';
+$lang['gen_hamradio_iota'] = 'IOTA';
+$lang['gen_hamradio_gridsquare'] = 'Pafta';
 
 $lang['gen_hamradio_sig'] = 'İmza';
 $lang['gen_hamradio_sig_info'] = 'İmza bilgisi';
