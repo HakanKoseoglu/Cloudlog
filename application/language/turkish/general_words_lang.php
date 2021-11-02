@@ -97,9 +97,9 @@ $lang['gen_hamradio_sig'] = 'İmza';
 $lang['gen_hamradio_sig_info'] = 'İmza bilgisi';
 
 // Dashboard Words
-$lang['dashboard_you_have_had'] = 'Bu gun';
+$lang['dashboard_you_have_had'] = 'Bu gün';
 $lang['dashboard_qsos_today'] = 'QSO Yaptınız!';
-$lang['dashboard_qso_breakdown'] = 'QSOs Analizi';
+$lang['dashboard_qso_breakdown'] = 'QSO\'ların Analizi';
 $lang['dashboard_countries_breakdown'] = 'Ülke Analizi';
 
 $lang['gen_from_date'] = 'Tarihten itibaren';
