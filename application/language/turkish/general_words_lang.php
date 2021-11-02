@@ -4,15 +4,15 @@ defined('BASEPATH') OR exit('Doğrudan komut dosyası erişimine izin verilmez')
 
 $lang['error_no_active_station_profile'] = 'Dikkat: aktif bir istasyon konumu ayarlamanız gerekir.';
 
-$lang['notice_turn_the_radio_on'] = 'Bu gün hiç bir QSO yapmadınız. Telsizi acmanın zamanı geldi!';
+$lang['notice_turn_the_radio_on'] = 'Bu gün hiç bir QSO yapmadınız. Telsizi açmanın zamanı geldi!';
 
 $lang['general_word_important'] = 'Önemli';
 $lang['general_word_info'] = 'Bilgiler';
 $lang['general_word_choose_file'] = 'Dosya seç';
 
 $lang['general_word_date'] = 'Tarih';
-$lang['general_word_time'] = 'Zaman';
-$lang['general_word_datetime'] = 'Tarih/Zaman';
+$lang['general_word_time'] = 'Saat';
+$lang['general_word_datetime'] = 'Tarih/Saat';
 $lang['general_word_none'] = 'Hiçbiri';
 $lang['general_word_name'] = 'İsim';
 $lang['general_word_location'] = 'Konum';
@@ -69,13 +69,13 @@ $lang['gen_hamradio_band'] = 'Bant';
 $lang['gen_hamradio_band_rx'] = 'Bant (RX)';
 $lang['gen_hamradio_frequency'] = 'Frekans';
 $lang['gen_hamradio_frequency_rx'] = 'Frekans (RX)';
-$lang['gen_hamradio_radio'] = 'Radyo';
+$lang['gen_hamradio_radio'] = 'Telsiz';
 $lang['gen_hamradio_rsts'] = 'RST (G)';
 $lang['gen_hamradio_rstr'] = 'RST (A)';
 $lang['gen_hamradio_exchange_sent_short'] = 'Exch (G)';
 $lang['gen_hamradio_exchange_recv_short'] = 'Exch (A)';
 $lang['gen_hamradio_qsl'] = 'QSL';
-$lang['gen_hamradio_locator'] = 'Locator';
+$lang['gen_hamradio_locator'] = 'Konum kodu';
 $lang['gen_hamradio_transmit_power'] = 'Yayın Gücü (W)';
 $lang['gen_hamradio_propagation_mode'] = 'Yayın Mode';
 
