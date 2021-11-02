@@ -15,4 +15,4 @@ $lang['contesting_btn_reset_qso'] = 'QSO\'yu baştan başlat';
 $lang['contesting_btn_save_qso'] = 'QSO\'yu kaydet';
 
 $lang['contesting_title_callsign_suggestions'] = 'Çağrı Kodu Önerileri';
-$lang['contesting_title_contest_logbook'] = 'Yarışma kayıt kitabı';
+$lang['contesting_title_contest_logbook'] = 'Yarışma kayıt defteri';
