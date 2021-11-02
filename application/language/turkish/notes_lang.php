@@ -6,7 +6,7 @@ $lang['notes_menu_notes'] = 'Notlar';
 $lang['notes_edit_note'] = 'Notu düzenle';
 $lang['notes_your_notes'] = 'Notlarınız';
 
-$lang['notes_welcome'] = "Şu anda bir notunuz yok. Bunlar ATU ayarları, işaretçiler ve genel istasyon notları gibi verileri saklamanın harika bir yoludur ve onları kaybetmemeniz için kağıttan daha iyidir!";
+$lang['notes_welcome'] = "Şu anda bir notunuz yok. Bunlar ATU ayarları, işaretçiler ve genel istasyon notları gibi verileri saklamanın harika bir yoludur ve onları kaybedemeyeceğiniz için kağıttan daha iyidir!";
 
 $lang['notes_create_note'] = 'Not yarat';
 
