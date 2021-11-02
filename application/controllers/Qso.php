@@ -153,6 +153,7 @@ class QSO extends CI_Controller {
         $this->load->model('logbook_model');
         $this->load->model('user_model');
         $this->load->model('modes');
+		$this->load->model('contesting_model');
 
         $this->load->library('form_validation');
 
@@ -167,6 +168,7 @@ class QSO extends CI_Controller {
         $data['dxcc'] = $this->logbook_model->fetchDxcc();
         $data['iota'] = $this->logbook_model->fetchIota();
         $data['modes'] = $this->modes->all();
+        $data['contest'] = $this->contesting_model->getActivecontests();
 
         $this->load->view('qso/edit_ajax', $data);
     }
@@ -211,6 +213,48 @@ class QSO extends CI_Controller {
         else {
             // Update Logbook to Mark Paper Card Received
             $this->logbook_model->paperqsl_update($id, $method);
+
+            echo json_encode(array('message' => 'OK'));
+        }
+    }
+
+    function qsl_requested_ajax() {
+        $id = str_replace('"', "", $this->input->post("id"));
+        $method = str_replace('"', "", $this->input->post("method"));
+
+        $this->load->model('logbook_model');
+        $this->load->model('user_model');
+
+        header('Content-Type: application/json');
+
+        if(!$this->user_model->authorize(2)) {
+            echo json_encode(array('message' => 'Error'));
+
+        }
+        else {
+            // Update Logbook to Mark Paper Card Received
+            $this->logbook_model->paperqsl_requested($id, $method);
+
+            echo json_encode(array('message' => 'OK'));
+        }
+    }
+
+	function qsl_ignore_ajax() {
+        $id = str_replace('"', "", $this->input->post("id"));
+        $method = str_replace('"', "", $this->input->post("method"));
+
+        $this->load->model('logbook_model');
+        $this->load->model('user_model');
+
+        header('Content-Type: application/json');
+
+        if(!$this->user_model->authorize(2)) {
+            echo json_encode(array('message' => 'Error'));
+
+        }
+        else {
+            // Update Logbook to Mark Paper Card Received
+            $this->logbook_model->paperqsl_ignore($id, $method);
 
             echo json_encode(array('message' => 'OK'));
         }
@@ -342,7 +386,7 @@ class QSO extends CI_Controller {
                 foreach ($result as &$value) {
                     $county = explode(',', $value);
                     // Limit to 100 as to not slowdown browser too much
-                    if (count($json) <= 100) {
+                    if (count($json) <= 300) {
                         $json[] = ["name"=>$county[1]];
                     }
                 }

@@ -8,19 +8,18 @@
                 <div class="card-body">
                     <form id="qso_input" name="qsos">
                         <div class="form-group row">
-                            <label class="col-auto control-label" for="radio"><?php echo $this->lang->line('contesting_exchange_type'); ?></label>
+							<label class="col-auto control-label" for="radio"><?php echo $this->lang->line('contesting_exchange_type'); ?></label>
 
-                            <div class="col-auto">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="exchangeradio" id="serial" value="serial" checked>
-                                    <label class="form-check-label" for="serial"><?php echo $this->lang->line('contesting_exchange_type_serial'); ?></label>
-                                </div>
-
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="exchangeradio" id="other" value="other">
-                                    <label class="form-check-label" for="other"><?php echo $this->lang->line('contesting_exchange_type_other'); ?></label>
-                                </div>
-                            </div>
+							<div class="col-auto">
+								<select class="form-control-sm" id="exchangetype" name="exchangetype">
+									<option value='None'>None</option>
+									<option value='Exchange'>Exchange</option>
+									<option value='Gridsquare'>Gridsquare</option>
+									<option value='Serial'>Serial</option>
+									<option value='Serialexchange'>Serial + Exchange</option>
+									<option value='Serialgridsquare'>Serial + Gridsquare</option>
+								</select>
+							</div>
 
                             <label class="col-auto control-label" for="contestname"><?php echo $this->lang->line('contesting_contest_name'); ?></label>
 
@@ -114,6 +113,7 @@
                             <div class="form-group col-md-3">
                                 <label for="callsign"><?php echo $this->lang->line('gen_hamradio_callsign'); ?></label>
                                 <input type="text" class="form-control form-control-sm" id="callsign" name="callsign" required>
+                                <small id="callsign_info" class="badge badge-danger"></small>
                             </div>
 
                             <div class="form-group col-md-1">
@@ -121,21 +121,40 @@
                                 <input type="text" class="form-control form-control-sm" name="rst_sent" id="rst_sent" value="59">
                             </div>
 
-                            <div class="form-group col-md-1">
+                            <div style="display:none" class="form-group col-md-1 serials">
+								<label for="exch_serial_s">Serial (S)</label>
+								<input type="number" class="form-control form-control-sm" name="exch_serial_s" id="exch_serial_s" value="">
+							</div>
+                            
+                            <div style="display:none" class="form-group col-md-1 exchanges">
                                 <label for="exch_sent"><?php echo $this->lang->line('gen_hamradio_exchange_sent_short'); ?></label>
                                 <input type="text" class="form-control form-control-sm" name="exch_sent" id="exch_sent" value="">
                             </div>
+
+							<div style="display:none" class="form-group col-md-2 gridsquares">
+								<label for="exch_gridsquare_s">Gridsquare (S)</label>
+								<input disabled type="text" class="form-control form-control-sm" name="exch_gridsquare_s" id="exch_gridsquare_s" value="<?php echo $my_gridsquare;?>">
+							</div>
 
                             <div class="form-group col-md-1">
                                 <label for="rst_recv"><?php echo $this->lang->line('gen_hamradio_rstr'); ?></label>
                                 <input type="text" class="form-control form-control-sm" name="rst_recv" id="rst_recv" value="59">
                             </div>
 
-                            <div class="form-group col-md-1">
-                                <label for="exch_recv"><?php echo $this->lang->line('gen_hamradio_exchange_recv_short'); ?></label>
-                                <input type="text" class="form-control form-control-sm" name="exch_recv" id="exch_recv" value="">
-                            </div>
+                            <div style="display:none" class="form-group col-md-1 serialr">
+								<label for="exch_serial_r">Serial (R)</label>
+								<input type="number" class="form-control form-control-sm" name="exch_serial_r" id="exch_serial_r" value="">
+							</div>
+							
+							<div style="display:none" class="form-group col-md-1 exchanger">
+								<label for="exch_recv"><?php echo $this->lang->line('gen_hamradio_exchange_recv_short'); ?></label>
+								<input type="text" class="form-control form-control-sm" name="exch_recv" id="exch_recv" value="">
+							</div>
 
+							<div style="display:none" class="form-group col-md-2 gridsquarer">
+								<label for="exch_gridsquare_r">Gridsquare (R)</label>
+								<input type="text" class="form-control form-control-sm" name="locator" id="exch_gridsquare_r" value="">
+							</div>
                         </div>
 
                         <div class="form-row">
@@ -152,6 +171,14 @@
 
                         <button type="button" class="btn btn-sm btn-light" onclick="reset_log_fields()"><i class="fas fa-sync-alt"></i> <?php echo $this->lang->line('contesting_btn_reset_qso'); ?></button>
                         <button type="button" class="btn btn-sm btn-primary" onclick="logQso();"><i class="fas fa-save"></i> <?php echo $this->lang->line('contesting_btn_save_qso'); ?></button>
+                        <div class="form-group row">
+                          <div class="col-md-12">
+                              <div class="form-check-inline">
+                                  <input class="form-check-input" type="checkbox" name="copyexchangetodok" value="1" id="copyexchangetodok">
+                                  <label class="form-check-label" for="copyexchangetodok">Copy received exchange to DOK field in the database!</label>
+                              </div>
+                          </div>
+                      </div>
                     </form>
                 </div>
             </div>
@@ -180,6 +207,10 @@
                             <th><?php echo $this->lang->line('gen_hamradio_rstr'); ?></th>
                             <th><?php echo $this->lang->line('gen_hamradio_exchange_sent_short'); ?></th>
                             <th><?php echo $this->lang->line('gen_hamradio_exchange_recv_short'); ?></th>
+							<th>Serial (S)</th>
+							<th>Serial (R)</th>
+							<th>Gridsquare</th>
+							<th>Vucc Gridsquare</th>
                         </tr>
                     </thead>
 
@@ -190,3 +221,5 @@
         </div>
     </div>
 </div>
+<?php
+?>

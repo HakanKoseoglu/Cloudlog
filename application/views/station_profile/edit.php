@@ -55,6 +55,7 @@
 						<label for="stationDXCCInput">Station DXCC</label>
 							<?php if ($dxcc_list->num_rows() > 0) { ?>
 							<select class="form-control" id="dxcc_select" name="dxcc" aria-describedby="stationCallsignInputHelp">
+							<option value="0" <?php if($my_station_profile->station_dxcc == "0") { ?>selected<?php } ?>>NONE</option>
 							<?php foreach ($dxcc_list->result() as $dxcc) { ?>
 							<option value="<?php echo $dxcc->adif; ?>" <?php if($my_station_profile->station_dxcc == $dxcc->adif) { ?>selected<?php } ?>><?php echo $dxcc->name; ?></option>
 							<?php } ?>
@@ -84,6 +85,7 @@
 								<option value="CO" <?php if($my_station_profile->state == "CO") { echo "selected"; } ?>>Colorado</option>
 								<option value="CT" <?php if($my_station_profile->state == "CT") { echo "selected"; } ?>>Connecticut</option>
 								<option value="DE" <?php if($my_station_profile->state == "DE") { echo "selected"; } ?>>Delaware</option>
+								<option value="DC" <?php if($my_station_profile->state == "DC") { echo "selected"; } ?>>District of Columbia</option>
 								<option value="FL" <?php if($my_station_profile->state == "FL") { echo "selected"; } ?>>Florida</option>
 								<option value="GA" <?php if($my_station_profile->state == "GA") { echo "selected"; } ?>>Georgia</option>
 								<option value="HI" <?php if($my_station_profile->state == "HI") { echo "selected"; } ?>>Hawaii</option>

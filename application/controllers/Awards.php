@@ -140,19 +140,6 @@ class Awards extends CI_Controller {
 		$this->load->view('interface_assets/footer');
 	}
 
-    public function dxcc_details_ajax(){
-        $this->load->model('logbook_model');
-
-        $country = str_replace('"', "", $this->input->post("Country"));
-        $band = str_replace('"', "", $this->input->post("Band"));
-        $data['results'] = $this->logbook_model->dxcc_qso_details($country, $band);
-
-        // Render Page
-        $data['page_title'] = "Log View - DXCC";
-        $data['filter'] = "country ".$country. " and ".$band;
-        $this->load->view('awards/details', $data);
-    }
-
     public function vucc()	{
         $this->load->model('vucc');
         $data['worked_bands'] = $this->vucc->get_worked_bands();
@@ -196,6 +183,33 @@ class Awards extends CI_Controller {
     }
 
 	/*
+	 * Used to fetch QSOs from the logbook in the awards
+	 */
+	public function qso_details_ajax(){
+		$this->load->model('logbook_model');
+
+		$searchphrase = str_replace('"', "", $this->input->post("Searchphrase"));
+		$band = str_replace('"', "", $this->input->post("Band"));
+		$mode = str_replace('"', "", $this->input->post("Mode"));
+		$type = $this->input->post('Type');
+
+		$data['results'] = $this->logbook_model->qso_details($searchphrase, $band, $mode, $type);
+
+		// This is done because we have two different ways to get dxcc info in Cloudlog. Once is using the name (in awards), and the other one is using the ADIF DXCC.
+		// We replace the values to make it look a bit nicer
+		if ($type == 'DXCC2') {
+			$type = 'DXCC';
+			$dxccname = $this->logbook_model->get_entity($searchphrase);
+			$searchphrase = $dxccname['name'];
+		}
+
+		// Render Page
+		$data['page_title'] = "Log View - " . $type;
+		$data['filter'] = $type . " " . $searchphrase . " and band ".$band . " and mode ".$mode;
+		$this->load->view('awards/details', $data);
+	}
+
+	/*
 		Handles showing worked SOTAs
 		Comment field - SOTA:#
 	*/
@@ -218,8 +232,10 @@ class Awards extends CI_Controller {
 		$station_id = $CI->Stations->find_active();
 
         $this->load->model('cq');
+		$this->load->model('modes');
 
         $data['worked_bands'] = $this->cq->get_worked_bands($station_id);
+		$data['modes'] = $this->modes->active(); // Used in the view for mode select
 
         if ($this->input->post('band') != NULL) {   // Band is not set when page first loads.
             if ($this->input->post('band') == 'All') {         // Did the user specify a band? If not, use all bands
@@ -242,6 +258,7 @@ class Awards extends CI_Controller {
             $postdata['confirmed'] = $this->input->post('confirmed');
             $postdata['notworked'] = $this->input->post('notworked');
             $postdata['band'] = $this->input->post('band');
+			$postdata['mode'] = $this->input->post('mode');
         }
         else { // Setting default values at first load of page
             $postdata['lotw'] = 1;
@@ -250,6 +267,7 @@ class Awards extends CI_Controller {
             $postdata['confirmed'] = 1;
             $postdata['notworked'] = 1;
             $postdata['band'] = 'All';
+			$postdata['mode'] = 'All';
         }
 
         $data['cq_array'] = $this->cq->get_cq_array($bands, $postdata, $station_id);
@@ -262,22 +280,12 @@ class Awards extends CI_Controller {
 		$this->load->view('interface_assets/footer');
 	}
 
-    public function cq_details_ajax(){
-        $this->load->model('logbook_model');
-
-        $cqzone = str_replace('"', "", $this->input->post("CQZone"));
-        $band = str_replace('"', "", $this->input->post("Band"));
-        $data['results'] = $this->logbook_model->cq_qso_details($cqzone, $band);
-
-        // Render Page
-        $data['page_title'] = "Log View - DXCC";
-        $data['filter'] = "CQZone ".$cqzone. " and ".$band;;
-        $this->load->view('awards/details', $data);
-    }
-
     public function was() {
         $this->load->model('was');
+		$this->load->model('modes');
+
         $data['worked_bands'] = $this->was->get_worked_bands();
+		$data['modes'] = $this->modes->active(); // Used in the view for mode select
 
         if ($this->input->post('band') != NULL) {   // Band is not set when page first loads.
             if ($this->input->post('band') == 'All') {         // Did the user specify a band? If not, use all bands
@@ -300,6 +308,7 @@ class Awards extends CI_Controller {
             $postdata['confirmed'] = $this->input->post('confirmed');
             $postdata['notworked'] = $this->input->post('notworked');
             $postdata['band'] = $this->input->post('band');
+			$postdata['mode'] = $this->input->post('mode');
         }
         else { // Setting default values at first load of page
             $postdata['lotw'] = 1;
@@ -308,10 +317,11 @@ class Awards extends CI_Controller {
             $postdata['confirmed'] = 1;
             $postdata['notworked'] = 1;
             $postdata['band'] = 'All';
+			$postdata['mode'] = 'All';
         }
 
         $data['was_array'] = $this->was->get_was_array($bands, $postdata);
-        $data['was_summary'] = $this->was->get_was_summary($bands);
+        $data['was_summary'] = $this->was->get_was_summary($data['worked_bands']);
 
         // Render Page
         $data['page_title'] = "Awards - WAS (Worked All States)";
@@ -320,21 +330,10 @@ class Awards extends CI_Controller {
         $this->load->view('interface_assets/footer');
     }
 
-    public function was_details_ajax() {
-        $this->load->model('logbook_model');
-
-        $state = str_replace('"', "", $this->input->post("State"));
-        $band = str_replace('"', "", $this->input->post("Band"));
-        $data['results'] = $this->logbook_model->was_qso_details($state, $band);
-
-        // Render Page
-        $data['page_title'] = "Log View - WAS";
-        $data['filter'] = "state ".$state. " and ".$band;
-        $this->load->view('awards/details', $data);
-    }
-
     public function iota ()	{
         $this->load->model('iota');
+		$this->load->model('modes');
+
         $data['worked_bands'] = $this->iota->get_worked_bands(); // Used in the view for band select
 
         if ($this->input->post('band') != NULL) {   // Band is not set when page first loads.
@@ -350,6 +349,7 @@ class Awards extends CI_Controller {
         }
 
         $data['bands'] = $bands; // Used for displaying selected band(s) in the table in the view
+		$data['modes'] = $this->modes->active(); // Used in the view for mode select
 
         if($this->input->method() === 'post') {
             $postdata['worked'] = $this->input->post('worked');
@@ -364,6 +364,7 @@ class Awards extends CI_Controller {
             $postdata['Oceania'] = $this->input->post('Oceania');
             $postdata['Antarctica'] = $this->input->post('Antarctica');
             $postdata['band'] = $this->input->post('band');
+			$postdata['mode'] = $this->input->post('mode');
         }
         else { // Setting default values at first load of page
             $postdata['worked'] = 1;
@@ -378,6 +379,7 @@ class Awards extends CI_Controller {
             $postdata['Oceania'] = 1;
             $postdata['Antarctica'] = 1;
             $postdata['band'] = 'All';
+			$postdata['mode'] = 'All';
         }
 
         $iotalist = $this->iota->fetchIota($postdata);
@@ -389,19 +391,6 @@ class Awards extends CI_Controller {
         $this->load->view('interface_assets/header', $data);
         $this->load->view('awards/iota/index');
         $this->load->view('interface_assets/footer');
-    }
-
-    public function iota_details_ajax(){
-        $this->load->model('logbook_model');
-
-        $iota = str_replace('"', "", $this->input->post("Iota"));
-        $band = str_replace('"', "", $this->input->post("Band"));
-        $data['results'] = $this->logbook_model->iota_qso_details($iota, $band);
-
-        // Render Page
-        $data['page_title'] = "Log View - IOTA";
-        $data['filter'] = "iota ".$iota. " and ".$band;
-        $this->load->view('awards/details', $data);
     }
 
     public function counties()	{
@@ -496,16 +485,15 @@ class Awards extends CI_Controller {
     /*
         function was_map
 
-        This displays the WAS map and requires the $band_type
+        This displays the WAS map and requires the $band_type and $mode_type
     */
-    public function was_map($band_type) {
+    public function was_map($band_type, $mode_type) {
 
         $this->load->model('was');
-        $data['worked_bands'] = $this->was->get_worked_bands();
+
+		$data['mode'] = $mode_type;
 
         $bands[] = $band_type;
-
-        $data['bands'] = $bands; // Used for displaying selected band(s) in the table in the view
 
         $postdata['lotw'] = 1;
         $postdata['qsl'] = 1;
@@ -513,7 +501,7 @@ class Awards extends CI_Controller {
         $postdata['confirmed'] = 1;
         $postdata['notworked'] = 1;
         $postdata['band'] = $band_type;
-
+		$postdata['mode'] = $mode_type;
 
         $data['was_array'] = $this->was->get_was_array($bands, $postdata);
 
