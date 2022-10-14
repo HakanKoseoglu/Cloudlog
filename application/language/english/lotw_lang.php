@@ -16,6 +16,8 @@ $lang['lotw_no_certs_uploaded'] = 'You need to upload some LoTW p12 certificates
 
 $lang['lotw_date_created'] = 'Date Created';
 $lang['lotw_date_expires'] = 'Date Expires';
+$lang['lotw_qso_start_date'] = 'QSO Start Date';
+$lang['lotw_qso_end_date'] = 'QSO End Date';
 $lang['lotw_status'] = 'Status';
 $lang['lotw_options'] = 'Options';
 $lang['lotw_valid'] = 'Valid';
@@ -33,7 +35,7 @@ $lang['lotw_upload_type_must_be_adi'] = 'Log files must have the file type .adi'
 $lang['lotw_pull_lotw_data_for_me'] = 'Pull LoTW data for me';
 $lang['lotw_import_missing_qsos_text'] = 'Import missing QSOs into the log. Call and gridsquare will be checked to try to find the correct profile to import the QSO into. If not found, the QSO will be skipped.';
 
-$lang['lotw_report_download_overview_helptext'] ='Cloudlog will use the LoTW username and password stored in your user profile to download a report from LoTW for you. The report Cloudlog downloads will have all confirmations since chosen date, or since your last LoTW confirmation (fetched from your log), up until now.';
+$lang['lotw_report_download_overview_helptext'] = 'Cloudlog will use the LoTW username and password stored in your user profile to download a report from LoTW for you. The report Cloudlog downloads will have all confirmations since chosen date, or since your last LoTW confirmation (fetched from your log), up until now.';
 
 // Buttons
 $lang['lotw_btn_lotw_import'] = 'LoTW Import';

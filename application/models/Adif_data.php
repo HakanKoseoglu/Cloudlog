@@ -2,12 +2,6 @@
 
 class adif_data extends CI_Model {
 
-    function __construct()
-    {
-        // Call the Model constructor
-        parent::__construct();
-    }
-
     function export_all() {
         $this->load->model('stations');
         $active_station_id = $this->stations->find_active();
@@ -30,6 +24,8 @@ class adif_data extends CI_Model {
 		}
 
         $this->db->join('station_profile', 'station_profile.station_id = '.$this->config->item('table_name').'.station_id');
+        // always filter user. this ensures that even if the station_id is from another user no inaccesible QSOs will be returned
+        $this->db->where('station_profile.user_id', $this->session->userdata('user_id'));
         $this->db->where_in('COL_QSL_SENT', array('R', 'Q'));
         $this->db->order_by("COL_TIME_ON", "ASC");
         $query = $this->db->get($this->config->item('table_name'));
@@ -74,6 +70,13 @@ class adif_data extends CI_Model {
     }
 
     function export_custom($from, $to, $station_id, $exportLotw = false) {
+        // be sure that station belongs to user
+        $CI =& get_instance();
+        $CI->load->model('Stations');
+        if (!$CI->Stations->check_station_is_accessible($station_id)) {
+            return;
+        }
+
         $this->db->select(''.$this->config->item('table_name').'.*, station_profile.*');
         $this->db->from($this->config->item('table_name'));
         $this->db->where($this->config->item('table_name').'.station_id', $station_id);
@@ -90,7 +93,10 @@ class adif_data extends CI_Model {
             $this->db->where("date(".$this->config->item('table_name').".COL_TIME_ON) <= '".$to."'");
         }
         if ($exportLotw) {
+            $this->db->group_start();
             $this->db->where($this->config->item('table_name').".COL_LOTW_QSL_SENT != 'Y'");
+            $this->db->or_where($this->config->item('table_name').".COL_LOTW_QSL_SENT", NULL);
+            $this->db->group_end();
         }
 
         $this->db->order_by($this->config->item('table_name').".COL_TIME_ON", "ASC");
@@ -108,7 +114,10 @@ class adif_data extends CI_Model {
         $this->db->select(''.$this->config->item('table_name').'.*, station_profile.*');
         $this->db->from($this->config->item('table_name'));
         $this->db->where($this->config->item('table_name').'.station_id', $active_station_id);
+        $this->db->group_start();
         $this->db->where($this->config->item('table_name').".COL_LOTW_QSL_SENT != 'Y'");
+        $this->db->or_where($this->config->item('table_name').".COL_LOTW_QSL_SENT", NULL);
+        $this->db->group_end();
 
         $this->db->order_by($this->config->item('table_name').".COL_TIME_ON", "ASC");
 
@@ -128,12 +137,13 @@ class adif_data extends CI_Model {
     }
 
 	function sig_all($type) {
-		$this->load->model('stations');
-		$active_station_id = $this->stations->find_active();
+		$CI =& get_instance();
+		$CI->load->model('logbooks_model');
+		$logbooks_locations_array = $CI->logbooks_model->list_logbook_relationships($this->session->userdata('active_station_logbook'));
 
 		$this->db->select(''.$this->config->item('table_name').'.*, station_profile.*');
 		$this->db->from($this->config->item('table_name'));
-		$this->db->where($this->config->item('table_name').'.station_id', $active_station_id);
+		$this->db->where_in($this->config->item('table_name').'.station_id', $logbooks_locations_array);
 		$this->db->where($this->config->item('table_name').'.COL_SIG', $type);
 
 		$this->db->order_by($this->config->item('table_name').".COL_TIME_ON", "ASC");

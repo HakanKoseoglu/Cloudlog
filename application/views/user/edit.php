@@ -71,10 +71,14 @@
 						<select class="custom-select" name="user_type">
 						<?php
 							$levels = $this->config->item('auth_level');
-							while (list($key, $val) = each($levels)) {
-						?>
-							<option value="<?php echo $key; ?>" <?php if($user_type == $key) { echo "selected=\"selected\""; } ?>><?php echo $val; ?></option>
-							<?php } ?>
+							foreach ($levels as $key => $value) {
+								echo '<option value="'. $key . '"';
+									if($user_type == $key) { 
+										echo "selected=\"selected\""; 
+									} 
+								echo '>' . $value . '</option>';
+							} 
+							?>
 						</select>
 						<?php } else {
 							$l = $this->config->item('auth_level');
@@ -94,12 +98,15 @@
                     <div class="form-group">
                         <label>Stylesheet</label>
                         <select class="custom-select" id="user_stylesheet" name="user_stylesheet" required>
-                            <option value='default' <?php if($user_stylesheet == "default") { echo "selected=\"selected\""; } ?>>Default</option>
-                            <option value='blue' <?php if($user_stylesheet == "blue") { echo "selected=\"selected\""; } ?>>Blue</option>
-                            <option value='cosmo' <?php if($user_stylesheet == "cosmo") { echo "selected=\"selected\""; } ?>>Cosmo</option>
-                            <option value='cyborg' <?php if($user_stylesheet == "cyborg") { echo "selected=\"selected\""; } ?>>Cyborg (Dark)</option>
-                            <option value='darkly' <?php if($user_stylesheet == "darkly") { echo "selected=\"selected\""; } ?>> Darkly (Dark)</option>
-                            <option value='superhero' <?php if($user_stylesheet == "superhero") { echo "selected=\"selected\""; } ?>>Superhero (Dark)</option>
+							<?php
+							foreach ($themes as $theme) {
+								echo '<option value="' . $theme->foldername . '"';
+								if( $user_stylesheet == $theme->foldername) {
+									echo 'selected="selected"';
+								}
+								echo '>' . $theme->name . '</option>';
+							}
+							?>
                         </select>
                     </div>
                 </div>
@@ -138,7 +145,7 @@
 						</div>
 
 						<div class="form-group">
-							<label>Locator</label>
+							<label>Gridsquare</label>
 							<input class="form-control" type="text" name="user_locator" value="<?php if(isset($user_locator)) { echo $user_locator; } ?>" />
 								<?php if(isset($locator_error)) { echo "<div class=\"small error\">".$locator_error."</div>"; } else { ?>
 								<?php } ?>
@@ -333,8 +340,10 @@
 								<option value="Country" <?php if ($user_column1 == "Country") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_country'); ?></option>
 								<option value="IOTA" <?php if ($user_column1 == "IOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_iota'); ?></option>
 								<option value="SOTA" <?php if ($user_column1 == "SOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
+								<option value="WWFF" <?php if ($user_column1 == "WWFF") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_wwff'); ?></option>
 								<option value="State" <?php if ($user_column1 == "State") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 								<option value="Grid" <?php if ($user_column1 == "Grid") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+								<option value="Operator" <?php if ($user_column1 == "Operator") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 							</select>
 						</div>
 
@@ -348,8 +357,10 @@
 								<option value="Country" <?php if ($user_column2 == "Country") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_country'); ?></option>
 								<option value="IOTA" <?php if ($user_column2 == "IOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_iota'); ?></option>
 								<option value="SOTA" <?php if ($user_column2 == "SOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
+								<option value="WWFF" <?php if ($user_column1 == "WWFF") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_wwff'); ?></option>
 								<option value="State" <?php if ($user_column2 == "State") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 								<option value="Grid" <?php if ($user_column2 == "Grid") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+								<option value="Operator" <?php if ($user_column2 == "Operator") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 							</select>
 							</div>
 
@@ -363,8 +374,10 @@
 								<option value="Country" <?php if ($user_column3 == "Country") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_country'); ?></option>
 								<option value="IOTA" <?php if ($user_column3 == "IOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_iota'); ?></option>
 								<option value="SOTA" <?php if ($user_column3 == "SOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
+								<option value="WWFF" <?php if ($user_column1 == "WWFF") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_wwff'); ?></option>
 								<option value="State" <?php if ($user_column3 == "State") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 								<option value="Grid" <?php if ($user_column3 == "Grid") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+								<option value="Operator" <?php if ($user_column3 == "Operator") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 							</select>
 							</div>
 
@@ -378,8 +391,10 @@
 								<option value="Country" <?php if ($user_column4 == "Country") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_country'); ?></option>
 								<option value="IOTA" <?php if ($user_column4 == "IOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_iota'); ?></option>
 								<option value="SOTA" <?php if ($user_column4 == "SOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
+								<option value="WWFF" <?php if ($user_column1 == "WWFF") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_wwff'); ?></option>
 								<option value="State" <?php if ($user_column4 == "State") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 								<option value="Grid" <?php if ($user_column4 == "Grid") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+								<option value="Operator" <?php if ($user_column4 == "Operator") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 							</select>
 						</div>
 							<div class="form-group col-md-3">
@@ -392,8 +407,10 @@
 									<option value="Country" <?php if ($user_column5 == "Country") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_country'); ?></option>
 									<option value="IOTA" <?php if ($user_column5 == "IOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_iota'); ?></option>
 									<option value="SOTA" <?php if ($user_column5 == "SOTA") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
+									<option value="WWFF" <?php if ($user_column1 == "WWFF") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_wwff'); ?></option>
 									<option value="State" <?php if ($user_column5 == "State") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 									<option value="Grid" <?php if ($user_column5 == "Grid") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+									<option value="Operator" <?php if ($user_column5 == "Operator") { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 								</select>
 							</div>
 						</div>
@@ -401,6 +418,29 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<br>
+		<div class="row">
+			<!-- qrz.com Images -->
+			<div class="col-md">
+				<div class="card">
+					<div class="card-header">
+						qrz.com/hamqth.com Images
+					</div>
+					<div class="card-body">
+						<div class="form-group">
+							<label for="profileimages">Show profile picture of QSO partner from qrz.com/hamqth.com profile in the log QSO section.</label>
+							<select class="custom-select" id="profileimages" name="user_show_profile_image">
+								<option value="1" <?php if ($user_show_profile_image == 1) { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_yes'); ?></option>
+								<option value="0" <?php if ($user_show_profile_image == 0) { echo " selected =\"selected\""; } ?>><?php echo $this->lang->line('general_word_no'); ?></option>
+							</select>
+							<div class="small form-text text-muted">Please set your qrz.com/hamqth.com credentials in the general config file.</div></td>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 	<input type="hidden" name="id" value="<?php echo $this->uri->segment(3); ?>" />

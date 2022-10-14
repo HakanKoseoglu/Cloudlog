@@ -16,9 +16,9 @@ class Distances extends CI_Controller {
         // Render Page
         $data['page_title'] = "Distances Worked";
 
-        $this->load->model('Distances_model');
-        $data['bands_available'] = $this->Distances_model->get_worked_bands();
-        $data['sats_available'] = $this->Distances_model->get_worked_sats();
+        $this->load->model('bands');
+        $data['bands_available'] = $this->bands->get_worked_bands_distances();
+        $data['sats_available'] = $this->bands->get_worked_sats();
 
         $this->load->view('interface_assets/header', $data);
         $this->load->view('distances/index');
@@ -41,6 +41,27 @@ class Distances extends CI_Controller {
 
         // get data
         $data = $this->Distances_model->get_distances($postData, $measurement_base);
+
+        return json_encode($data);
+    }
+
+    public function test_distance(){
+        // POST data
+        $postdata['band'] = "sat";
+        $postdata['sat'] = "All";
+
+        //load model
+        $this->load->model('Distances_model');
+
+        if ($this->session->userdata('user_measurement_base') == NULL) {
+            $measurement_base = $this->config->item('measurement_base');
+        }
+        else {
+            $measurement_base = $this->session->userdata('user_measurement_base');
+        }
+
+        // get data
+        $data = $this->Distances_model->get_distances($postdata, $measurement_base);
 
         return json_encode($data);
     }

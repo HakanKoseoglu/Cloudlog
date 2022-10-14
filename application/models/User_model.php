@@ -13,12 +13,6 @@
 
 class User_Model extends CI_Model {
 
-    function __construct()
-    {
-        // Call the Model constructor
-        parent::__construct();
-    }
-
 	// FUNCTION: object get($username)
 	// Retrieve a user
 	function get($username) {
@@ -61,6 +55,27 @@ class User_Model extends CI_Model {
 		return $r;
 	}
 
+	/*
+	 * Function: check_email_address
+	 * 
+	 * Checks if an email address is already in use
+	 * 
+	 * @param string $email
+	 */
+	function check_email_address($email) {
+
+		$clean_email = $this->security->xss_clean($email);
+
+		$this->db->where('user_email', $clean_email);
+		$query = $this->db->get($this->config->item('auth_table'));
+		
+		if ($query->num_rows() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	// FUNCTION: bool exists($username)
 	// Check if a user exists (by username)
 	function exists($username) {
@@ -98,7 +113,7 @@ class User_Model extends CI_Model {
 	// Add a user
 	function add($username, $password, $email, $type, $firstname, $lastname, $callsign, $locator, $timezone,
 				 $measurement, $user_date_format, $user_stylesheet, $user_sota_lookup, $user_show_notes,
-				 $user_column1, $user_column2, $user_column3, $user_column4, $user_column5) {
+				 $user_column1, $user_column2, $user_column3, $user_column4, $user_column5, $user_show_profile_image) {
 		// Check that the user isn't already used
 		if(!$this->exists($username)) {
 			$data = array(
@@ -121,6 +136,7 @@ class User_Model extends CI_Model {
 				'user_column3' => xss_clean($user_column3),
 				'user_column4' => xss_clean($user_column4),
 				'user_column5' => xss_clean($user_column5),
+				'user_show_profile_image' => xss_clean($user_show_profile_image),
 			);
 
 			// Check the password is valid
@@ -133,8 +149,10 @@ class User_Model extends CI_Model {
 				return EEMAILEXISTS;
 			}
 
-			// Add user
+			// Add user and insert bandsettings for user
 			$this->db->insert($this->config->item('auth_table'), $data);
+			$insert_id = $this->db->insert_id();
+			$this->db->query("insert into bandxuser (bandid, userid, active, cq, dok, dxcc, iota, sig, sota, uscounties, was, wwff, vucc) select bands.id, " . $insert_id . ", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 from bands;");
 			return OK;
 		} else {
 			return EUSERNAMEEXISTS;
@@ -169,6 +187,7 @@ class User_Model extends CI_Model {
 					'user_column3' => xss_clean($fields['user_column3']),
 					'user_column4' => xss_clean($fields['user_column4']),
 					'user_column5' => xss_clean($fields['user_column5']),
+					'user_show_profile_image' => xss_clean($fields['user_show_profile_image']),
 				);
 
 				// Check to see if the user is allowed to change user levels
@@ -278,11 +297,13 @@ class User_Model extends CI_Model {
 			'user_stylesheet' => $u->row()->user_stylesheet,
 			'user_sota_lookup' => isset($u->row()->user_sota_lookup) ? $u->row()->user_sota_lookup : 0,
 			'user_show_notes' => isset($u->row()->user_show_notes) ? $u->row()->user_show_notes : 1,
+			'user_show_profile_image' => isset($u->row()->user_show_profile_image) ? $u->row()->user_show_profile_image : 0,
 			'user_column1' => isset($u->row()->user_column1) ? $u->row()->user_column1: 'Mode',
 			'user_column2' => isset($u->row()->user_column2) ? $u->row()->user_column2: 'RSTS',
 			'user_column3' => isset($u->row()->user_column3) ? $u->row()->user_column3: 'RSTR',
 			'user_column4' => isset($u->row()->user_column4) ? $u->row()->user_column4: 'Band',
 			'user_column5' => isset($u->row()->user_column5) ? $u->row()->user_column5: 'Country',
+			'active_station_logbook' => $u->row()->active_station_logbook,
 		);
 
 		$this->session->set_userdata($userdata);
@@ -368,6 +389,52 @@ class User_Model extends CI_Model {
 			$ts[$t['id']] = $t['name'];
 		}
 		return $ts;
+	}
+
+	// FUNCTION: array getThemes()
+	// Returns a list of themes
+	function getThemes() {
+		$result = $this->db->query('SELECT * FROM themes order by name');
+
+		return $result->result();
+	}
+
+	/*
+	 * FUNCTION: set_password_reset_code
+	 *
+	 * Stores generated password reset code in the database and sets the date to exactly
+	 * when the sql query runs.
+	 * 
+	 * @param string $user_email
+	 * @return string $reset_code
+	 */
+	function set_password_reset_code($user_email, $reset_code) {
+		$data = array(
+			'reset_password_code' => $reset_code,
+			'reset_password_date' => date('Y-m-d H:i:s')
+		);
+				
+		$this->db->where('user_email', $user_email);
+		$this->db->update('users', $data);
+	}
+
+	/*
+	 * FUNCTION: reset_password
+	 *
+	 * Sets new password for users account where the reset code matches then clears the password reset code and password reset date.
+	 * 
+	 * @param string $password
+	 * @return string $reset_code
+	 */
+	function reset_password($password, $reset_code) {
+		$data = array(
+			'user_password' => $this->_hash($password),
+			'reset_password_code' => NULL,
+			'reset_password_date' => NULL
+		);
+				
+		$this->db->where('reset_password_code', $reset_code);
+		$this->db->update('users', $data);
 	}
 
 	// FUNCTION: bool _auth($password, $hash)

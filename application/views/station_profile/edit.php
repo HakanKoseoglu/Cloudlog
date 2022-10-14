@@ -18,16 +18,24 @@
 
 	<?php echo validation_errors(); ?>
 
-	<form method="post" action="<?php echo site_url('station/edit/'); ?><?php echo $my_station_profile->station_id; ?>" name="create_profile">
+	<?php if($my_station_profile->station_id != NULL) {
+		$form_action = "Update";
+	?>
+		<form method="post" action="<?php echo site_url('station/edit/'); ?><?php echo $my_station_profile->station_id; ?>" name="create_profile">
+			<input type="hidden" name="station_id" value="<?php echo $my_station_profile->station_id; ?>">
 
-	<input type="hidden" name="station_id" value="<?php echo $my_station_profile->station_id; ?>">
+	<?php } else {
+		$form_action = "Create";
+	?>
+		<form method="post" action="<?php echo site_url('station/copy/'); ?><?php echo $copy_from; ?>" name="create_profile">
+	<?php } ?>
 
 	<div class="row">
 		<div class="col-md">
 			<div class="card">
-				<div class="card-header"><?php echo $page_title; ?>: <?php echo $my_station_profile->station_profile_name; ?> (Callsign: <?php echo $my_station_profile->station_callsign; ?>)</div>
+				<div class="card-header"><?php echo $page_title; ?> (Callsign: <?php echo $my_station_profile->station_callsign; ?>)</div>
 				<div class="card-body">
-				
+
 					<div class="form-group">
 						<label for="stationNameInput">Station Name</label>
 						<input type="text" class="form-control" name="station_profile_name" id="stationNameInput" aria-describedby="stationNameInputHelp" value="<?php if(set_value('station_profile_name') != "") { echo set_value('station_profile_name'); } else { echo $my_station_profile->station_profile_name; } ?>" required>
@@ -68,7 +76,7 @@
 					<!-- City -->
 					<div class="form-group">
 						<label for="stationCityInput">Station City</label>
-						<input type="text" class="form-control" name="city" id="stationCityInput" aria-describedby="stationCityInputHelp" value="<?php if(set_value('city') != "") { echo set_value('city'); } else { echo $my_station_profile->station_city; } ?>" required>
+						<input type="text" class="form-control" name="city" id="stationCityInput" aria-describedby="stationCityInputHelp" value="<?php if(set_value('city') != "") { echo set_value('city'); } else { echo $my_station_profile->station_city; } ?>">
 		    			<small id="stationCityInputHelp" class="form-text text-muted">Station city. For example: Inverness</small>
 		  			</div>
 
@@ -208,7 +216,14 @@
 				<div class="card-body">
 					<div class="form-group">
 		    			<label for="stationGridsquareInput">Gridsquare</label>
-		    			<input type="text" class="form-control" name="gridsquare" id="stationGridsquareInput" aria-describedby="stationGridInputHelp" value="<?php if(set_value('gridsquare') != "") { echo set_value('gridsquare'); } else { echo $my_station_profile->station_gridsquare; } ?>" required>
+
+						<div class="input-group mb-3">
+						<input type="text" class="form-control" name="gridsquare" id="stationGridsquareInput" aria-describedby="stationGridInputHelp" value="<?php if(set_value('gridsquare') != "") { echo set_value('gridsquare'); } else { echo $my_station_profile->station_gridsquare; } ?>" required>
+							<div class="input-group-append">
+								<button type="button" class="btn btn-outline-secondary" onclick="getLocation()"><i class="fas fa-compass"></i> Get Gridsquare</button>
+							</div>
+						</div>
+
 		    			<small id="stationGridInputHelp" class="form-text text-muted">Station grid square. For example: IO87IP</small>
 		    			<small id="stationGridInputHelp" class="form-text text-muted">If you are located on a grid line, enter multiple grid squares separated with commas. For example: IO77,IO78,IO87,IO88.</small>
 		  			</div>
@@ -234,7 +249,7 @@
                     			}
                     		?>
                 		</select>
-                		
+
 						<small id="stationIOTAInputHelp" class="form-text text-muted">Station IOTA reference. For example: EU-005</small>
                 		<small id="stationIOTAInputHelp" class="form-text text-muted">You can look up IOTA references at the <a target="_blank" href="https://www.iota-world.org/iota-directory/annex-f-short-title-iota-reference-number-list.html">IOTA World</a> website.</small>
             		</div>
@@ -257,6 +272,21 @@
 			</div>
 		</div>
 
+		<div class="col-md">
+			<div class="card">
+				<h5 class="card-header">WWFF</h5>
+				<div class="card-body">
+					<div class="form-group">
+						<label for="stationWWFFInput">WWFF Reference</label>
+						<input type="text" class="form-control" name="wwff" id="stationWWFFInput" aria-describedby="stationWWFFInputHelp" value="<?php if(set_value('wwff') != "") { echo set_value('wwff'); } else { echo $my_station_profile->station_wwff; } ?>">
+						<small id="stationWWFFInputHelp" class="form-text text-muted">Station WWFF reference.</small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
 		<div class="col-md">
 			<div class="card">
 				<h5 class="card-header">Signature</h5>
@@ -313,7 +343,7 @@
 		</div>
 	</div>
 
-	<button type="submit" class="btn btn-primary"><i class="fas fa-plus-square"></i> Update Station Location</button>
+	<button type="submit" class="btn btn-primary"><i class="fas fa-plus-square"></i> <?php echo $form_action; ?> Station Location</button>
 
 	</form>
 

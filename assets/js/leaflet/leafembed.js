@@ -10,7 +10,9 @@ var greenIcon = L.icon({
     iconSize:     [10, 10], // size of the icon
 });
 
-function initmap(ShowGrid = 'No') {
+var osmUrl = $('#leafembed').attr("tileUrl");
+
+function initmap(ShowGrid = 'No', MapTag = 'map') {
     // set up AJAX request
     ajaxRequest=getXmlHttpObject();
     if (ajaxRequest==null) {
@@ -19,12 +21,19 @@ function initmap(ShowGrid = 'No') {
     }
     
     // set up the map
-    map = new L.Map('map');
+    map = new L.Map(MapTag);
 
     // create the tile layer with correct attribution
-    var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
     var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 9, attribution: osmAttrib});        
+
+	var printer = L.easyPrint({
+		tileLayer: osm,
+		sizeModes: ['Current'],
+		filename: 'myMap',
+		exportOnly: true,
+		hideControlContainer: true
+	}).addTo(map);
 
     // start the map in South-East England
     map.setView(new L.LatLng(q_lat, q_lng), q_zoom);

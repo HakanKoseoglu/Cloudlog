@@ -54,10 +54,18 @@ class Frequency {
   		'SSB'=>"144300000",
   		'DATA'=>"144370000",
   		'CW'=>"144050000"),
+	'1.25m'=>array(
+		'SSB'=>"222100000",
+		'DATA'=>"222100000",
+		'CW'=>"222100000"),
 	'70cm'=>array(
   		'SSB'=>"432200000",
   		'DATA'=>"432088000",
   		'CW'=>"432050000"),
+	'33cm'=>array(
+		'SSB'=>"902100000",
+		'DATA'=>"902100000",
+		'CW'=>"902100000"),
 	'23cm'=>array(
   		'SSB'=>"1296000000",
   		'DATA'=>"1296138000",
@@ -81,7 +89,7 @@ class Frequency {
   );
 
 	/* Class to convert band and mode into a frequency in a format based on the specifications of the database table */
-	public function convent_band($band, $mode='SSB') {
+	public function convert_band($band, $mode='SSB') {
 		// Converting LSB and USB to SSB
 		if($mode =='LSB' or $mode =='USB'){
 		  $mode= "SSB";
@@ -92,7 +100,21 @@ class Frequency {
 		  $mode= "DATA";
 		}
 
-		return $this->defaultFrequencies[$band][$mode];
+		return $this->getDefaultFrequency($band, $mode);
+	}
+
+	function getDefaultFrequency($band, $mode) {
+		$CI =& get_instance();
+		$db =& $CI->db;
+
+		$db->from('bands');
+		$db->where('bands.band', $band);
+
+		$result = $db->get()->row();
+
+		$mode = strtolower($mode);
+
+		return $result->$mode;
 	}
 
 	public function GetBand($Frequency) {

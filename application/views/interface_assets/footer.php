@@ -5,9 +5,17 @@
 <script src="<?php echo base_url(); ?>assets/js/bootstrap.bundle.js"></script>
 <script src="<?php echo base_url(); ?>assets/js/jquery.jclock.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/leaflet/leaflet.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/leaflet/L.Maidenhead.qrb.js"></script>
+<?php if ($this->uri->segment(1) == "activators") { ?>
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.Maidenhead.activators.js"></script>
+<?php } ?>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/leaflet/leaflet.geodesic.js"></script>
 <script type="text/javascript" src="<?php echo base_url() ;?>assets/js/radiohelpers.js"></script>
 <script type="text/javascript" src="<?php echo base_url() ;?>assets/js/darkmodehelpers.js"></script>
 <script src="<?php echo base_url(); ?>assets/js/bootstrapdialog/js/bootstrap-dialog.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url() ;?>assets/js/easyprint.js"></script>
+<script src="https://unpkg.com/htmx.org@1.6.1"></script>
+
 <script type="text/javascript">
   /*
   *
@@ -19,9 +27,8 @@
   var icon_dot_url = "<?php echo base_url();?>assets/images/dot.png";
 </script>
 
-
+<?php if ($this->uri->segment(1) == "awards" && ($this->uri->segment(2) == "was") ) { ?>
 <script>
-
 function load_was_map() {
     BootstrapDialog.show({
             title: 'Worked All States Map ('+$('#band2').val()+' '+$('#mode').val()+')',
@@ -29,8 +36,19 @@ function load_was_map() {
             message: $('<div></div>').load(site_url + '/awards/was_map/' + $('#band2').val() + '/' + $('#mode').val())
     });
 }
-
 </script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "awards" && ($this->uri->segment(2) == "cq") ) { ?>
+    <script src="<?php echo base_url(); ?>assets/js/Polyline.encoded.js"></script>
+    <script id="cqmapjs" type="text/javascript" src="<?php echo base_url(); ?>assets/js/sections/cqmap.js" tileUrl="<?php echo $this->optionslib->get_option('option_map_tile_server');?>"></script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "statistics") { ?>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/chart.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/chartjs-plugin-piechart-outlabels.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/sections/statistics.js"></script>
+<?php } ?>
 
 <?php if ($this->uri->segment(1) == "adif") { ?>
     <!-- Javascript used for ADIF Import and Export Areas -->
@@ -49,6 +67,49 @@ function load_was_map() {
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/selectize.js"></script>
+
+<?php if ($this->uri->segment(1) == "station") { ?>
+    <script language="javascript" src="<?php echo base_url() ;?>assets/js/HamGridSquare.js"></script>
+    <script src="<?php echo base_url() ;?>assets/js/sections/station_locations.js"></script>
+    <script>
+        var position;
+        function getLocation() {
+            console.log("'clicked");
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else { 
+                console.log('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function showPosition(position) {
+            gridsquare = latLonToGridSquare(position.coords.latitude,position.coords.longitude);
+            document.getElementById("stationGridsquareInput").value = gridsquare;
+  }
+    </script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "logbooks") { ?>
+    <script src="<?php echo base_url() ;?>assets/js/sections/station_logbooks.js"></script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "api"  && $this->uri->segment(2) == "help") { ?>
+<script type="text/javascript">
+function copyApiKey(apiKey) {
+   var apiKeyField = $('#'+apiKey);
+   navigator.clipboard.writeText(apiKey).then(function() {
+   });
+   apiKeyField.addClass('flash-copy')
+      .delay('1000').queue(function() {
+         apiKeyField.removeClass('flash-copy').dequeue();
+      });
+}
+
+$(function () {
+   $('[data-toggle="tooltip"]').tooltip({'delay': { show: 500, hide: 0 }, 'placement': 'right'});
+});
+</script>
+<?php } ?>
 
 <?php if ($this->uri->segment(1) == "search" && $this->uri->segment(2) == "filter") { ?>
 
@@ -348,6 +409,7 @@ function load_was_map() {
                     if (isDarkModeTheme()) {
                         $(".buttons-csv").css("color", "white");
                     }
+                    $('[data-toggle="tooltip"]').tooltip();
                     $(".searchbutton").removeClass('running');
                     $(".searchbutton").prop('disabled', false);
                     $("#btn-save").show();
@@ -383,13 +445,15 @@ function load_was_map() {
         //$log.info(e.value);
     });
 </script>
+
 <?php } ?>
 
 <script>
 $(document).ready(function() {
 	$('#create_station_profile #country').val($("#dxcc_select option:selected").text());
 	$("#create_station_profile #dxcc_select" ).change(function() {
-	  $('#country').val($("#dxcc_select option:selected").text());
+	$('#country').val($("#dxcc_select option:selected").text());
+
 	});
 });
 </script>
@@ -404,13 +468,180 @@ $('[data-fancybox]').fancybox({
     }
 });
 
-// Here we capture ALT-L to invoice the Quick lookup
+// Here we capture ALT-L to invoke the Quick lookup
 document.onkeyup = function(e) {
-	// ALT-W wipe
 	if (e.altKey && e.which == 76) {
 		spawnLookupModal();
 	}
+    if (e.altKey && e.which == 81) {
+		spawnQrbCalculator();
+	}
 };
+
+function spawnQrbCalculator(locator1, locator2) {
+	$.ajax({
+		url: base_url + 'index.php/qrbcalc',
+		type: 'post',
+		success: function (html) {
+			BootstrapDialog.show({
+				title: 'Compute QRB and QTF',
+				size: BootstrapDialog.SIZE_WIDE,
+				cssClass: 'lookup-dialog',
+				nl2br: false,
+				message: html,
+				onshown: function(dialog) {
+                    if (locator1 !== undefined) {
+                        $("#qrbcalc_locator1").val(locator1);
+                    }
+                    if (locator2 !== undefined) {
+                        $("#qrbcalc_locator2").val(locator2);
+                        calculateQrb();
+                    }
+				},
+				buttons: [{
+					label: 'Close',
+					action: function (dialogItself) {
+						dialogItself.close();
+					}
+				}]
+			});
+		}
+	});
+}
+
+function spawnActivatorsMap(call, count, grids) {
+	$.ajax({
+		url: base_url + 'index.php/activatorsmap',
+		type: 'post',
+		success: function (html) {
+			BootstrapDialog.show({
+				title: 'Activators Map',
+				size: BootstrapDialog.SIZE_WIDE,
+				cssClass: 'lookup-dialog',
+				nl2br: false,
+				message: html,
+				onshown: function(dialog) {
+					showActivatorsMap(call, count, grids);
+				},
+				buttons: [{
+					label: 'Close',
+					action: function (dialogItself) {
+						dialogItself.close();
+					}
+				}]
+			});
+		}
+	});
+}
+
+function calculateQrb() {
+    let locator1 = $("#qrbcalc_locator1").val();
+    let locator2 = $("#qrbcalc_locator2").val();
+
+    $(".qrbalert").remove();
+
+    if (validateLocator(locator1) && validateLocator(locator2)) {
+        $.ajax({
+            url: base_url+'index.php/qrbcalc/calculate',
+            type: 'post',
+            data: {'locator1': locator1,
+                    'locator2': locator2},
+            success: function (html) {
+                
+                var result = "<h5>Negative latitudes are south of the equator, negative longitudes are west of Greenwich. <br/>";
+                result += ' ' + locator1.toUpperCase() + ' Latitude = ' + html['latlng1'][0] + ' Longitude = ' + html['latlng1'][1] + '<br/>';
+                result += ' ' + locator2.toUpperCase() + ' Latitude = ' + html['latlng2'][0] + ' Longitude = ' + html['latlng2'][1] + '<br/>';
+                result += 'Distance between ' + locator1.toUpperCase() + ' and ' + locator2.toUpperCase() + ' is ' + html['distance'] + '.<br />';
+                result += 'The bearing is ' + html['bearing'] + '.</h5>';
+                
+                $(".qrbResult").html(result);
+                newpath(html['latlng1'], html['latlng2'], locator1, locator2);
+            }
+        });
+    } else {
+        $('.qrbResult').html('<div class="qrbalert alert alert-danger" role="alert">Error in locators. Please check.</div>');
+    }
+}
+
+function validateLocator(locator) {
+    if(locator.length < 4 && !(/^[a-rA-R]{2}[0-9]{2}[a-xA-X]{0,2}[0-9]{0,2}[a-xA-X]{0,2}$/.test(locator))) {
+        return false;
+    }
+    
+    return true;
+}
+
+function newpath(latlng1, latlng2, locator1, locator2) {
+    // If map is already initialized
+    var container = L.DomUtil.get('mapqrb');
+
+    if(container != null){
+        container._leaflet_id = null;
+    }
+
+    const map = new L.map('mapqrb').setView([30, 0], 1.5);
+
+    var maidenhead = L.maidenheadqrb().addTo(map);
+
+    var osmUrl='<?php echo $this->optionslib->get_option('option_map_tile_server');?>';
+    var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 9, attribution: osmAttrib}); 
+
+    var redIcon = L.icon({
+					iconUrl: icon_dot_url,
+					iconSize:     [10, 10], // size of the icon
+				});
+
+    map.addLayer(osm);
+
+    var marker = L.marker([latlng1[0], latlng1[1]], {closeOnClick: false, autoClose: false}).addTo(map).bindPopup(locator1);
+    var marker2 = L.marker([latlng2[0], latlng2[1]], {closeOnClick: false, autoClose: false}).addTo(map).bindPopup(locator2);
+
+    const multiplelines = [];
+		multiplelines.push(
+            new L.LatLng(latlng1[0], latlng1[1]),
+            new L.LatLng(latlng2[0], latlng2[1])
+        )
+
+    const geodesic = L.geodesic(multiplelines, {
+        weight: 3,
+        opacity: 1,
+        color: 'red',
+        wrap: false,
+        steps: 100
+    }).addTo(map);
+}
+
+function showActivatorsMap(call, count, grids) {
+
+    let re = /,/g;
+    grids = grids.replace(re, ', ');
+
+    var result = "Callsign: "+call.replace('0', '&Oslash;')+"<br />";
+    result +=    "Count: "+count+"<br/>";
+    result +=    "Grids: "+grids+"<br/><br />";
+
+    $(".activatorsmapResult").html(result);
+
+    // If map is already initialized
+    var container = L.DomUtil.get('mapactivators');
+
+    if(container != null){
+        container._leaflet_id = null;
+    }
+
+    const map = new L.map('mapactivators').setView([30, 0], 1.5);
+
+    var grid_four = grids.split(', ');
+
+    var maidenhead = new L.maidenheadactivators(grid_four).addTo(map);
+
+    var osmUrl='<?php echo $this->optionslib->get_option('option_map_tile_server');?>';
+    var osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {minZoom: 1, maxZoom: 9, attribution: osmAttrib}); 
+
+    map.addLayer(osm);
+}
 
 // This displays the dialog with the form and it's where the resulttable is displayed
 function spawnLookupModal() {
@@ -503,7 +734,7 @@ function getLookupResult() {
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/moment.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/tempusdominus-bootstrap-4.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.Maidenhead.js"></script>
-    <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js"></script>
+    <script id="leafembed" type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js" tileUrl="<?php echo $this->optionslib->get_option('option_map_tile_server');?>"></script>
     <script type="text/javascript">
       $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -517,8 +748,8 @@ function getLookupResult() {
         var q_lng = -32.695312;
         <?php } ?>
 
-        var qso_loc = '<?php echo site_url('map/map_data_custom/');?><?php echo rawurlencode($date_from); ?>/<?php echo rawurlencode($date_to); ?>/<?php echo rawurlencode($this->input->post('band')); ?>';
-        var q_zoom = 2;
+        var qso_loc = '<?php echo site_url('map/map_data_custom/');?><?php echo rawurlencode($date_from); ?>/<?php echo rawurlencode($date_to); ?>/<?php echo rawurlencode($this->input->post('band')); ?>/<?php echo rawurlencode($this->input->post('mode')); ?>/<?php echo rawurlencode($this->input->post('prop_mode')); ?>';
+        var q_zoom = 3;
 
       $(document).ready(function(){
             <?php if ($this->config->item('map_gridsquares') != FALSE) { ?>
@@ -526,7 +757,7 @@ function getLookupResult() {
             <?php } else { ?>
               var grid = "No";
             <?php } ?>
-            initmap(grid);
+            initmap(grid, 'custommap');
 
       });
     </script>
@@ -534,7 +765,7 @@ function getLookupResult() {
 
 <?php if ($this->uri->segment(1) == "map" && $this->uri->segment(2) == "") { ?>
     <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.Maidenhead.js"></script>
-    <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js"></script>
+    <script id="leafembed" type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js" tileUrl="<?php echo $this->optionslib->get_option('option_map_tile_server');?>"></script>
     <script type="text/javascript">
       $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -565,7 +796,7 @@ function getLookupResult() {
 
 <?php if ($this->uri->segment(1) == "" || $this->uri->segment(1) == "dashboard" ) { ?>
     <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.Maidenhead.js"></script>
-    <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js"></script>
+    <script id="leafembed" type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js" tileUrl="<?php echo $this->optionslib->get_option('option_map_tile_server');?>"></script>
     <script type="text/javascript">
       $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -614,13 +845,20 @@ function getLookupResult() {
 
 <?php if ($this->uri->segment(1) == "search") { ?>
 <script type="text/javascript">
+  $(function () {
+     $('[data-toggle="tooltip"]').tooltip()
+  });
+</script>
+<script type="text/javascript">
 i=0;
 
 function searchButtonPress(){
     event.preventDefault()
     if ($('#callsign').val()) {
       let fixedcall = $('#callsign').val();
-      $('#partial_view').load("logbook/search_result/" + fixedcall.replace('Ø', '0'), function() {});
+      $('#partial_view').load("logbook/search_result/" + fixedcall.replace('Ø', '0'), function() {
+         $('[data-toggle="tooltip"]').tooltip()
+      });
     }
 }
 
@@ -628,6 +866,7 @@ $(document).ready(function(){
 
   <?php if($this->input->post('callsign') != "") { ?>
         $('#partial_view').load("logbook/search_result/<?php echo str_replace("Ø","0",$this->input->post('callsign')); ?>", function() {
+           $('[data-toggle="tooltip"]').tooltip()
     });
   <?php } ?>
 
@@ -636,7 +875,9 @@ $(document).on('keypress',function(e) {
 
     if ($('#callsign').val()) {
         let fixedcall = $('#callsign').val();
-      $('#partial_view').load("logbook/search_result/" + fixedcall.replace('Ø', '0'), function() {});
+        $('#partial_view').load("logbook/search_result/" + fixedcall.replace('Ø', '0'), function() {
+           $('[data-toggle="tooltip"]').tooltip()
+        });
     }
 
      event.preventDefault();
@@ -651,7 +892,12 @@ $(document).on('keypress',function(e) {
 
 <?php if ($this->uri->segment(1) == "logbook" && $this->uri->segment(2) != "view") { ?>
     <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.Maidenhead.js"></script>
-    <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js"></script>
+    <script id="leafembed" type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/leafembed.js" tileUrl="<?php echo $this->optionslib->get_option('option_map_tile_server');?>"></script>
+    <script type="text/javascript">
+      $(function () {
+         $('[data-toggle="tooltip"]').tooltip()
+      });
+    </script>
     <script type="text/javascript">
         <?php if($qra == "set") { ?>
         var q_lat = <?php echo $qra_lat; ?>;
@@ -677,13 +923,41 @@ $(document).on('keypress',function(e) {
 <?php if ($this->uri->segment(1) == "qso") { ?>
 <script src="<?php echo base_url() ;?>assets/js/sections/qso.js"></script>
 
+<?php 
+
+    $this->load->model('stations');
+    $active_station_id = $this->stations->find_active();
+    $station_profile = $this->stations->profile($active_station_id);
+    $active_station_info = $station_profile->row();
+
+    if (strpos($active_station_info->station_gridsquare, ',') !== false) {
+        $gridsquareArray = explode(',', $active_station_info->station_gridsquare);
+        $user_gridsquare = $gridsquareArray[0];
+    } else {
+        $user_gridsquare = $active_station_info->station_gridsquare;
+    }
+?>
+
 <script>
   var markers = L.layerGroup();
-  var mymap = L.map('qsomap').setView([51.505, -0.09], 13);
+  var pos = [51.505, -0.09];
+  var mymap = L.map('qsomap').setView(pos, 12);
+  <?php
+  if ($active_station_info->station_gridsquare != "") { ?>
+  $.getJSON('logbook/qralatlngjson/<?php echo $user_gridsquare; ?>', function(result) {
+     mymap.panTo([result[0], result[1]]);
+     pos = result;
+  })
+  <?php } else if (null !== $this->config->item('locator')) { ?>
+  $.getJSON('logbook/qralatlngjson/<?php echo $this->config->item('locator'); ?>', function(result) {
+     mymap.panTo([result[0], result[1]]);
+     pos = result;
+  })
+  <?php } ?>
 
-  L.tileLayer('<?php echo $this->optionslib->get_option('map_tile_server');?>', {
+  L.tileLayer('<?php echo $this->optionslib->get_option('option_map_tile_server');?>', {
     maxZoom: 18,
-    attribution: '<?php echo $this->optionslib->get_option('map_tile_server_copyright');?>',
+    attribution: '<?php echo $this->optionslib->get_option('option_map_tile_server_copyright');?>',
     id: 'mapbox.streets'
   }).addTo(mymap);
 
@@ -870,7 +1144,7 @@ $(document).on('keypress',function(e) {
   </script>
 
 <?php } ?>
-<?php if ( ($this->uri->segment(1) == "qso" && $_GET['manual'] == 0) || ($this->uri->segment(1) == "contesting" && $this->uri->segment(2) != "add")) { ?>
+<?php if ( $this->uri->segment(1) == "qso" || ($this->uri->segment(1) == "contesting" && $this->uri->segment(2) != "add")) { ?>
     <script>
     function setRst(mode) {
         if(mode == 'JT65' || mode == 'JT65B' || mode == 'JT6C' || mode == 'JTMS' || mode == 'ISCAT' || mode == 'MSK144' || mode == 'JTMSK' || mode == 'QRA64' || mode == 'FT8' || mode == 'FT4' || mode == 'JS8' || mode == 'JT9' || mode == 'JT9-1' || mode == 'ROS'){
@@ -890,35 +1164,29 @@ $(document).on('keypress',function(e) {
     </script>
 
     <script>
-        // Javascript for controlling rig frequency.
-  var updateFromCAT = function() {
+    // Javascript for controlling rig frequency.
+    var updateFromCAT = function() {
     if($('select.radios option:selected').val() != '0') {
       radioID = $('select.radios option:selected').val();
       $.getJSON( "radio/json/" + radioID, function( data ) {
           /* {
-              "uplink_freq": "2400210000",
-              "downlink_freq": "10489710000",
+              "frequency": "2400210000",
+              "frequency_rx": "10489710000",
               "mode": "SSB",
-              "satmode": "",
-              "satname": "ES'HAIL-2"
+              "satmode": "S/X",
+              "satname": "QO-100"
+              "power": "20"
+              "prop_mode": "SAT"
           }  */
-          if (data.uplink_freq != "")
-          {
-            $('#frequency').val(data.uplink_freq);
-            $("#band").val(frequencyToBand(data.uplink_freq));
-          }
-          if (data.downlink_freq != "")
-          {
-            $('#frequency_rx').val(data.downlink_freq);
-            $("#band_rx").val(frequencyToBand(data.downlink_freq));
+          $('#frequency').val(data.frequency);
+          $("#band").val(frequencyToBand(data.frequency));
+          if (data.frequency_rx != "") {
+            $('#frequency_rx').val(data.frequency_rx);
+            $("#band_rx").val(frequencyToBand(data.frequency_rx));
           }
 
           old_mode = $(".mode").val();
-          if (data.mode == "LSB" || data.mode == "USB" || data.mode == "SSB") {
-            $(".mode").val('SSB');
-          } else {
-            $(".mode").val(data.mode);
-          }
+          $(".mode").val(data.mode);
 
           if (old_mode !== $(".mode").val()) {
             // Update RST on mode change via CAT
@@ -926,19 +1194,23 @@ $(document).on('keypress',function(e) {
           }
           $("#sat_name").val(data.satname);
           $("#sat_mode").val(data.satmode);
+          if(data.power != 0) {
+            $("#transmit_power").val(data.power);
+          }
+          $("#selectPropagation").val(data.prop_mode);
 
-          // Display CAT Timeout warnng based on the figure given in the config file
-            var minutes = Math.floor(<?php echo $this->config->item('cat_timeout_interval'); ?> / 60);
+          // Display CAT Timeout warning based on the figure given in the config file
+          var minutes = Math.floor(<?php echo $this->optionslib->get_option('cat_timeout_interval'); ?> / 60);
 
-            if(data.updated_minutes_ago > minutes) {
-              if($('.radio_timeout_error').length == 0) {
-                $('.qso_panel').prepend('<div class="alert alert-danger radio_timeout_error" role="alert">Radio connection timed-out: ' + $('select.radios option:selected').text() + ' data is ' + data.updated_minutes_ago + ' minutes old.</div>');
-              } else {
-                $('.radio_timeout_error').text('Radio connection timed-out: ' + $('select.radios option:selected').text() + ' data is ' + data.updated_minutes_ago + ' minutes old.');
-              }
+          if(data.updated_minutes_ago > minutes) {
+            if($('.radio_timeout_error').length == 0) {
+              $('.qso_panel').prepend('<div class="alert alert-danger radio_timeout_error" role="alert">Radio connection timed-out: ' + $('select.radios option:selected').text() + ' data is ' + data.updated_minutes_ago + ' minutes old.</div>');
             } else {
-              $(".radio_timeout_error" ).remove();
+              $('.radio_timeout_error').text('Radio connection timed-out: ' + $('select.radios option:selected').text() + ' data is ' + data.updated_minutes_ago + ' minutes old.');
             }
+          } else {
+            $(".radio_timeout_error" ).remove();
+          }
 
       });
     }
@@ -950,21 +1222,17 @@ $(document).on('keypress',function(e) {
   // If a radios selected from drop down select radio update.
   $('.radios').change(updateFromCAT);
 
-  // If radio isn't SatPC32 clear sat_name and sat_mode
+  // If no radio is selected clear data
   $( ".radios" ).change(function() {
-      if ($(".radios option:selected").text() != "SatPC32") {
+      if ($(".radios option:selected").val() == 0) {
         $("#sat_name").val("");
         $("#sat_mode").val("");
         $("#frequency").val("");
         $("#frequency_rx").val("");
         $("#band_rx").val("");
         $("#selectPropagation").val($("#selectPropagation option:first").val());
-      }
-
-      if ($(".radios option:selected").text() == "None") {
         $(".radio_timeout_error" ).remove();
       }
-
   });
   </script>
 
@@ -975,12 +1243,21 @@ $(document).on('keypress',function(e) {
 
   var mymap = L.map('map').setView([lat,long], 5);
 
-  L.tileLayer('<?php echo $this->optionslib->get_option('map_tile_server');?>', {
+  L.tileLayer('<?php echo $this->optionslib->get_option('option_map_tile_server');?>', {
     maxZoom: 18,
-    attribution: '<?php echo $this->optionslib->get_option('map_tile_server_copyright');?>',
+    attribution: '<?php echo $this->optionslib->get_option('option_map_tile_server_copyright');?>',
     id: 'mapbox.streets'
   }).addTo(mymap);
 
+
+
+  var printer = L.easyPrint({
+      		tileLayer: tiles,
+      		sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+      		filename: 'myMap',
+      		exportOnly: true,
+      		hideControlContainer: true
+		}).addTo(mymap);
 
   var redIcon = L.icon({
       iconUrl: icon_dot_url,
@@ -1019,32 +1296,59 @@ $(document).ready(function(){
 
 <?php } ?>
 
-<?php if ($this->uri->segment(1) == "gridsquares") { ?>
+<?php if ($this->uri->segment(1) == "gridsquares" && !empty($this->uri->segment(2))) { ?>
 
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.MaidenheadColoured.js"></script>
 
 <script>
 
-  var layer = L.tileLayer('<?php echo $this->optionslib->get_option('map_tile_server');?>', {
+  var layer = L.tileLayer('<?php echo $this->optionslib->get_option('option_map_tile_server');?>', {
     maxZoom: 18,
-    attribution: '<?php echo $this->optionslib->get_option('map_tile_server_copyright');?>',
+    attribution: '<?php echo $this->optionslib->get_option('option_map_tile_server_copyright');?>',
     id: 'mapbox.streets'
   });
-
 
   var map = L.map('gridsquare_map', {
     layers: [layer],
     center: [19, 0],
-    zoom: 2
+    zoom: 2,
+    minZoom: 1
   });
+
+  var printer = L.easyPrint({
+        tileLayer: layer,
+        sizeModes: ['Current'],
+        filename: 'myMap',
+        exportOnly: true,
+        hideControlContainer: true
+    }).addTo(map);
 
   var grid_two = <?php echo $grid_2char; ?>;
   var grid_four = <?php echo $grid_4char; ?>;
   var grid_six = <?php echo $grid_6char; ?>;
 
+  var grid_two_count = grid_two.length;
+  var grid_four_count = grid_four.length;
+  var grid_six_count = grid_six.length;
+
   var grid_two_confirmed = <?php echo $grid_2char_confirmed; ?>;
   var grid_four_confirmed = <?php echo $grid_4char_confirmed; ?>;
   var grid_six_confirmed = <?php echo $grid_6char_confirmed; ?>;
+
+  var grid_two_confirmed_count = grid_two_confirmed.length;
+  var grid_four_confirmed_count = grid_four_confirmed.length;
+  var grid_six_confirmed_count = grid_six_confirmed.length;
+
+  if (grid_four_confirmed_count > 0) {
+     var span = document.getElementById('confirmed_grids');
+     span.innerText = span.textContent = '('+grid_four_confirmed_count+' grid square'+(grid_four_confirmed_count != 1 ? 's' : '')+') ';
+  }
+  if ((grid_four_count-grid_four_confirmed_count) > 0) {
+     var span = document.getElementById('worked_grids');
+     span.innerText = span.textContent = '('+(grid_four_count-grid_four_confirmed_count)+' grid square'+(grid_four_count-grid_four_confirmed_count != 1 ? 's' : '')+') ';
+  }
+  var span = document.getElementById('sum_grids');
+  span.innerText = span.textContent = ' Total Count: '+grid_four_count+' grid square'+(grid_four_count != 1 ? 's' : '');
 
   var maidenhead = L.maidenhead().addTo(map);
 
@@ -1094,6 +1398,7 @@ $(document).ready(function(){
 				  if (count > 0) {
 					  $('#square_number').text(loc_4char);
 					  $('#exampleModal').modal('show');
+					  $('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
 				  }
 			  }
 		  });
@@ -1125,6 +1430,140 @@ $(document).ready(function(){
           var url = $(this).val(); // get selected value
           if (url) { // require a URL
               window.location = "<?php echo site_url('gridsquares/band/');?>" + url
+          }
+          return false;
+      });
+    });
+<?php } ?>
+
+</script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "activated_grids" && !empty($this->uri->segment(2))) { ?>
+
+<script type="text/javascript" src="<?php echo base_url();?>assets/js/leaflet/L.MaidenheadColoured.js"></script>
+
+<script>
+  var layer = L.tileLayer('<?php echo $this->optionslib->get_option('option_map_tile_server');?>', {
+    maxZoom: 18,
+    attribution: '<?php echo $this->optionslib->get_option('option_map_tile_server_copyright');?>',
+    id: 'mapbox.streets'
+  });
+
+
+  var map = L.map('gridsquare_map', {
+    layers: [layer],
+    center: [19, 0],
+    zoom: 2,
+    minZoom: 1
+  });
+
+  var grid_two = <?php echo $grid_2char; ?>;
+  var grid_four = <?php echo $grid_4char; ?>;
+  var grid_six = <?php echo $grid_6char; ?>;
+
+  var grid_two_count = grid_two.length;
+  var grid_four_count = grid_four.length;
+  var grid_six_count = grid_six.length;
+
+  var grid_two_confirmed = <?php echo $grid_2char_confirmed; ?>;
+  var grid_four_confirmed = <?php echo $grid_4char_confirmed; ?>;
+  var grid_six_confirmed = <?php echo $grid_6char_confirmed; ?>;
+
+  var grid_two_confirmed_count = grid_two_confirmed.length;
+  var grid_four_confirmed_count = grid_four_confirmed.length;
+  var grid_six_confirmed_count = grid_six_confirmed.length;
+
+  if (grid_four_confirmed_count > 0) {
+     var span = document.getElementById('confirmed_grids');
+     span.innerText = span.textContent = '('+grid_four_confirmed_count+' grid square'+(grid_four_confirmed_count != 1 ? 's' : '')+') ';
+  }
+  if ((grid_four_count-grid_four_confirmed_count) > 0) {
+     var span = document.getElementById('activated_grids');
+     span.innerText = span.textContent = '('+(grid_four_count-grid_four_confirmed_count)+' grid square'+(grid_four_count-grid_four_confirmed_count != 1 ? 's' : '')+') ';
+  }
+  var span = document.getElementById('sum_grids');
+  span.innerText = span.textContent = ' Total Count: '+grid_four_count+' grid square'+(grid_four_count != 1 ? 's' : '');
+
+  var maidenhead = L.maidenhead().addTo(map);
+
+  map.on('click', onMapClick);
+
+  function onMapClick(event) {
+    var LatLng = event.latlng;
+    var lat = LatLng.lat;
+    var lng = LatLng.lng;
+    var locator = LatLng2Loc(lat,lng, 10);
+    var loc_4char = locator.substring(0, 4);
+    console.log(loc_4char);
+    console.log(map.getZoom());
+
+    if(map.getZoom() > 2) {
+    	<?php if ($this->session->userdata('user_callsign')) { ?>
+	  var band = '';
+      var search_type = "<?php echo $this->uri->segment(2); ?>";
+      if(search_type == "satellites") {
+		band = 'SAT';
+      } else {
+        band = "<?php echo $this->uri->segment(3); ?>";
+      }
+		$(".modal-body").empty();
+		  $.ajax({
+			  url: base_url + 'index.php/activated_grids/qso_details_ajax',
+			  type: 'post',
+			  data: {
+				  'Searchphrase': loc_4char,
+				  'Band': band,
+				  'Mode': 'All',
+			  },
+			  success: function (html) {
+				$(".modal-body").html(html);
+				  $(".modal-body table").addClass('table-sm');
+				  $(".modal-body h5").empty();
+				  var count = $('.table tr').length;
+				  count = count - 1;
+				  $('#qso_count').text(count);
+				  if (count > 1) {
+					  $('#gt1_qso').text("s");
+				  } else {
+					  $('#gt1_qso').text("");
+				  }
+
+				  if (count > 0) {
+					  $('#square_number').text(loc_4char);
+					  $('#exampleModal').modal('show');
+					  $('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
+				  }
+			  }
+		  });
+		  <?php } ?>
+    }
+  };
+
+<?php if ($this->uri->segment(1) == "activated_grids" && $this->uri->segment(2) == "band") { ?>
+
+  var bands_available = <?php echo $bands_available; ?>;
+  $('#gridsquare_bands').append('<option value="All">All</option>')
+  $.each(bands_available, function(key, value) {
+     $('#gridsquare_bands')
+         .append($("<option></option>")
+                    .attr("value",value)
+                    .text(value));
+  });
+
+  var num = "<?php echo $this->uri->segment(3);?>";
+    $("#gridsquare_bands option").each(function(){
+        if($(this).val()==num){ // EDITED THIS LINE
+            $(this).attr("selected","selected");
+        }
+    });
+
+  $(function(){
+      // bind change event to select
+      $('#gridsquare_bands').on('change', function () {
+          var url = $(this).val(); // get selected value
+          if (url) { // require a URL
+              window.location = "<?php echo site_url('activated_grids/band/');?>" + url
           }
           return false;
       });
@@ -1184,11 +1623,19 @@ $(document).ready(function(){
 							var callsign = $("#callsign").text();
 							var mymap = L.map('mapqso').setView([lat,long], 5);
 
-							L.tileLayer('<?php echo $this->optionslib->get_option('map_tile_server');?>', {
+							var tiles = L.tileLayer('<?php echo $this->optionslib->get_option('option_map_tile_server');?>', {
 								maxZoom: 18,
-								attribution: '<?php echo $this->optionslib->get_option('map_tile_server_copyright');?>',
-								id: 'mapbox.streets'
+								attribution: '<?php echo $this->optionslib->get_option('option_map_tile_server_copyright');?>',
 							}).addTo(mymap);
+
+                            
+                            var printer = L.easyPrint({
+                                tileLayer: tiles,
+                                sizeModes: ['Current'],
+                                filename: 'myMap',
+                                exportOnly: true,
+                                hideControlContainer: true
+                            }).addTo(mymap);
 
 							var redIcon = L.icon({
 								iconUrl: icon_dot_url,
@@ -1272,7 +1719,7 @@ $(document).ready(function(){
             $.ajax({
                 url: baseURL + 'index.php/awards/dok_details_ajax',
                 type: 'post',
-                data: {'Dok': dok,
+                data: {'DOK': dok,
                     'Band': band
                 },
                 success: function(html) {
@@ -1282,6 +1729,9 @@ $(document).ready(function(){
                         cssClass: 'qso-dok-dialog',
                         nl2br: false,
                         message: html,
+                        onshown: function(dialog) {
+                           $('[data-toggle="tooltip"]').tooltip();
+                        },
                         buttons: [{
                             label: 'Close',
                             action: function (dialogItself) {
@@ -1411,7 +1861,27 @@ $(document).ready(function(){
                 success: function(data) {
                     if (data.message == 'OK') {
                         $("#qso_" + id).find("td:eq(8)").find("span:eq(1)").attr('class', 'qsl-green'); // Paints arrow green
-                        $(".qsl_" + id).remove(); // removes choice from menu
+                        $(".qsl_rcvd_" + id).remove(); // removes choice from menu
+                    }
+                    else {
+                        $(".bootstrap-dialog-message").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>You are not allowed to update QSL status!</div>');
+                    }
+                }
+            });
+        }
+
+        function qsl_sent(id, method) {
+            var baseURL= "<?php echo base_url();?>";
+            $.ajax({
+                url: baseURL + 'index.php/qso/qsl_sent_ajax',
+                type: 'post',
+                data: {'id': id,
+                    'method': method
+                },
+                success: function(data) {
+                    if (data.message == 'OK') {
+                        $("#qso_" + id).find("td:eq(8)").find("span:eq(0)").attr('class', 'qsl-green'); // Paints arrow green
+                        $(".qsl_sent_" + id).remove(); // removes choice from menu
                     }
                     else {
                         $(".bootstrap-dialog-message").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>You are not allowed to update QSL status!</div>');
@@ -1539,6 +2009,34 @@ $(document).ready(function(){
                                     if (!query || query.length < 3) return callback();  // Only trigger if 3 or more characters are entered
                                     $.ajax({
                                         url: baseURL+'index.php/qso/get_sota',
+                                        type: 'GET',
+                                        dataType: 'json',
+                                        data: {
+                                            query: query,
+                                        },
+                                        error: function() {
+                                            callback();
+                                        },
+                                        success: function(res) {
+                                            callback(res);
+                                        }
+                                    });
+                                }
+                            });
+
+                            $('#wwff_ref_edit').selectize({
+                                maxItems: 1,
+                                closeAfterSelect: true,
+                                loadThrottle: 250,
+                                valueField: 'name',
+                                labelField: 'name',
+                                searchField: 'name',
+                                options: [],
+                                create: false,
+                                load: function(query, callback) {
+                                    if (!query || query.length < 3) return callback();  // Only trigger if 3 or more characters are entered
+                                    $.ajax({
+                                        url: baseURL+'index.php/qso/get_wwff',
                                         type: 'GET',
                                         dataType: 'json',
                                         data: {
@@ -1682,6 +2180,75 @@ $(document).ready(function(){
                             cssClass: 'qso-was-dialog',
                             nl2br: false,
                             message: html,
+                            onshown: function(dialog) {
+                               $('[data-toggle="tooltip"]').tooltip();
+                            },
+                            buttons: [{
+                                label: 'Close',
+                                action: function (dialogItself) {
+                                    dialogItself.close();
+                                }
+                            }]
+                        });
+                    }
+                });
+            }
+        </script>
+        <?php } ?>
+    <?php if ($this->uri->segment(1) == "activators") { ?>
+        <script>
+            $('.activatorstable').DataTable({
+                "pageLength": 25,
+                responsive: false,
+                ordering: false,
+                "scrollY":        "500px",
+                "scrollCollapse": true,
+                "paging":         false,
+                "scrollX": true,
+                dom: 'Bfrtip',
+                buttons: [
+                    'csv'
+                ]
+            });
+
+            // change color of csv-button if dark mode is chosen
+            if (isDarkModeTheme()) {
+                $(".buttons-csv").css("color", "white");
+            }
+
+      $(document).ready(function(){
+         $('#band').change(function()
+         {
+            if($(this).val() == "SAT")
+            {
+               $('#leogeo').show();
+            } else {
+               $('#leogeo').hide();
+            }
+         });
+         <?php if ($this->input->post('band') != "SAT") { ?>
+         $('#leogeo').hide();
+         <?php } ?>
+      });
+            function displayActivatorsContacts(call, band, leogeo) {
+                var baseURL= "<?php echo base_url();?>";
+                $.ajax({
+                    url: baseURL + 'index.php/activators/details',
+                    type: 'post',
+                    data: {'Callsign': call,
+                        'Band': band,
+                        'LeoGeo': leogeo
+                    },
+                    success: function(html) {
+                        BootstrapDialog.show({
+                            title: 'QSO Data',
+                            size: BootstrapDialog.SIZE_WIDE,
+                            cssClass: 'qso-was-dialog',
+                            nl2br: false,
+                            message: html,
+                            onshown: function(dialog) {
+                               $('[data-toggle="tooltip"]').tooltip();
+                            },
                             buttons: [{
                                 label: 'Close',
                                 action: function (dialogItself) {
@@ -1699,6 +2266,10 @@ $(document).ready(function(){
 		<script src="<?php echo base_url(); ?>assets/js/sections/mode.js"></script>
     <?php } ?>
 
+    <?php if ($this->uri->segment(1) == "band") { ?>
+		<script src="<?php echo base_url(); ?>assets/js/sections/bands.js"></script>
+    <?php } ?>
+
 <?php if ($this->uri->segment(1) == "accumulated") { ?>
     <script src="<?php echo base_url(); ?>assets/js/chart.js"></script>
 	<script src="<?php echo base_url(); ?>assets/js/sections/accumulatedstatistics.js"></script>
@@ -1712,17 +2283,45 @@ $(document).ready(function(){
 	<script src="<?php echo base_url(); ?>assets/js/sections/timeplot.js"></script>
 <?php } ?>
 
-<?php if ($this->uri->segment(1) == "qsl") { ?>
+<?php if ($this->uri->segment(1) == "qsl") { 
+    	// Get Date format
+	if($this->session->userdata('user_date_format')) {
+		// If Logged in and session exists
+		$custom_date_format = $this->session->userdata('user_date_format');
+	} else {
+		// Get Default date format from /config/cloudlog.php
+		$custom_date_format = $this->config->item('qso_date_format');
+	}
+
+    switch ($custom_date_format) {
+        case 'd/m/y': $usethisformat = 'D/MM/YY';break;
+        case 'd/m/Y': $usethisformat = 'D/MM/YYYY';break;
+        case 'm/d/y': $usethisformat = 'MM/D/YY';break;
+        case 'm/d/Y': $usethisformat = 'MM/D/YYYY';break;
+        case 'd.m.Y': $usethisformat = 'D.MM.YYYY';break;
+        case 'y/m/d': $usethisformat = 'YY/MM/D';break;
+        case 'Y-m-d': $usethisformat = 'YYYY-MM-D';break;
+        case 'M d, Y': $usethisformat = 'MMM D, YYYY';break;
+        case 'M d, y': $usethisformat = 'MMM D, YY';break;
+    }
+    
+    ?>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/moment.min.js"></script>
+    <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/datetime-moment.js"></script>
     <script>
+        $.fn.dataTable.moment('<?php echo $usethisformat ?>');
         $('.qsltable').DataTable({
             "pageLength": 25,
             responsive: false,
-            ordering: false,
+            ordering: true,
             "scrollY":        "500px",
             "scrollCollapse": true,
             "paging":         false,
-            "scrollX": true
+            "scrollX": true,
+            "order": [ 2, 'desc' ],
         });
+        
+        
     </script>
 <?php } ?>
 
@@ -1828,6 +2427,9 @@ function deleteQsl(id) {
                     cssClass: 'qso-dialog',
                     nl2br: false,
                     message: html,
+                    onshown: function(dialog) {
+                       $('[data-toggle="tooltip"]').tooltip();
+                    },
                     buttons: [{
                         label: 'Close',
                         action: function (dialogItself) {
@@ -1885,8 +2487,8 @@ function deleteQsl(id) {
                     }
 
                 } else {
-                    $("#qslupload").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
-                        data.status.front +
+                    $("#qslupload").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Front QSL Card:' +
+                    data.status.front.error +
                         '</div>');
                 }
                 if (data.status.back.status == 'Success') {
@@ -1923,8 +2525,8 @@ function deleteQsl(id) {
                         $("#qslcardback").val(null);
                     }
                 } else {
-                    $("#qslupload").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\n' +
-                        data.status.back +
+                    $("#qslupload").append('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\nBack QSL Card: ' +
+                    data.status.back.error +
                         '</div>');
                 }
             }
@@ -1992,7 +2594,10 @@ function deleteQsl(id) {
 	}
 </script>
 <?php if ($this->uri->segment(1) == "contesting" && $this->uri->segment(2) != "add" ) { ?>
-    <script src="<?php echo base_url() ;?>assets/js/sections/contesting.js"></script>
+    <script>
+        var manual = <?php echo $_GET['manual']; ?>;
+    </script>
+    <script src="<?php echo base_url() ;?>assets/js/sections/contesting.js?v2"></script>
 <?php } ?>
 
 <?php if ($this->uri->segment(1) == "station") { ?>
@@ -2087,6 +2692,9 @@ function deleteQsl(id) {
                     cssClass: 'qso-counties-dialog',
                     nl2br: false,
                     message: html,
+                    onshown: function(dialog) {
+                       $('[data-toggle="tooltip"]').tooltip();
+                    },
                     buttons: [{
                         label: 'Close',
                         action: function (dialogItself) {
@@ -2127,6 +2735,108 @@ function deleteQsl(id) {
 	<script src="<?php echo base_url() ;?>assets/js/sections/contestingnames.js"></script>
 <?php } ?>
 
+<?php if ($this->uri->segment(1) == "themes") { ?>
+    <script>
+    function deleteTheme(id, name) {
+        BootstrapDialog.confirm({
+            title: 'DANGER',
+            message: 'Warning! Are you sure you want to delete the following theme: ' + name + '?'  ,
+            type: BootstrapDialog.TYPE_DANGER,
+            closable: true,
+            draggable: true,
+            btnOKClass: 'btn-danger',
+            callback: function(result) {
+                if(result) {
+                    $.ajax({
+                        url: base_url + 'index.php/themes/delete',
+                        type: 'post',
+                        data: {'id': id
+                        },
+                        success: function(data) {
+                            $(".theme_" + id).parent("tr:first").remove(); // removes mode from table
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+	function addThemeDialog() {
+		$.ajax({
+			url: base_url + 'index.php/themes/add',
+			type: 'post',
+			success: function(html) {
+				BootstrapDialog.show({
+					title: 'Create Theme',
+					size: BootstrapDialog.SIZE_WIDE,
+					cssClass: 'create-theme-dialog',
+					nl2br: false,
+					message: html,
+					buttons: [{
+						label: 'Close',
+						action: function (dialogItself) {
+							dialogItself.close();
+						}
+					}]
+				});
+			}
+		});
+	}
+
+	function addTheme(form) {
+		if (form.name.value != '') {
+			$.ajax({
+				url: base_url + 'index.php/themes/add',
+				type: 'post',
+				data: {
+					'name': form.name.value,
+					'foldername': form.foldername.value,
+				},
+				success: function(html) {
+					location.reload();
+				}
+			});
+		}
+	}
+    </script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "dxatlas") { ?>
+	<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/moment.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/tempusdominus-bootstrap-4.min.js"></script>
+	<script>
+		$(function () {
+			$('#datetimepicker1').datetimepicker({
+				format: 'DD/MM/YYYY',
+			});
+		});
+
+		$(function () {
+			$('#datetimepicker2').datetimepicker({
+				format: 'DD/MM/YYYY',
+			});
+		});
+	</script>
+<?php } ?>
+
+<?php if ($this->uri->segment(1) == "csv") { ?>
+	<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/moment.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url(); ?>assets/js/tempusdominus-bootstrap-4.min.js"></script>
+	<script>
+		$(function () {
+			$('#datetimepicker1').datetimepicker({
+				format: 'DD/MM/YYYY',
+			});
+		});
+
+		$(function () {
+			$('#datetimepicker2').datetimepicker({
+				format: 'DD/MM/YYYY',
+			});
+		});
+	</script>
+<?php } ?>
+
 <?php if ($this->uri->segment(1) == "qslprint") { ?>
 	<script>
 		function deleteFromQslQueue(id) {
@@ -2162,6 +2872,9 @@ function deleteQsl(id) {
 						cssClass: 'qso-dialog',
 						nl2br: false,
 						message: html,
+						onshown: function(dialog) {
+							$('[data-toggle="tooltip"]').tooltip();
+						},
 						buttons: [{
 							label: 'Close',
 							action: function (dialogItself) {
@@ -2209,5 +2922,6 @@ function deleteQsl(id) {
 		});
 	</script>
 <?php } ?>
+
   </body>
 </html>

@@ -7,23 +7,35 @@ function echo_table_header_col($ctx, $name) {
 		case 'Country': echo '<th>'.$ctx->lang->line('general_word_country').'</th>'; break;
 		case 'IOTA': echo '<th>'.$ctx->lang->line('gen_hamradio_iota').'</th>'; break;
 		case 'SOTA': echo '<th>'.$ctx->lang->line('gen_hamradio_sota').'</th>'; break;
+		case 'WWFF': echo '<th>'.$ctx->lang->line('gen_hamradio_wwff').'</th>'; break;
 		case 'State': echo '<th>'.$ctx->lang->line('gen_hamradio_state').'</th>'; break;
 		case 'Grid': echo '<th>'.$ctx->lang->line('gen_hamradio_gridsquare').'</th>'; break;
 		case 'Band': echo '<th>'.$ctx->lang->line('gen_hamradio_band').'</th>'; break;
+		case 'Operator': echo '<th>'.$ctx->lang->line('gen_hamradio_operator').'</th>'; break;
 	}
 }
 
 function echo_table_col($row, $name) {
 	switch($name) {
 		case 'Mode':    echo '<td>'; echo $row->COL_SUBMODE==null?$row->COL_MODE:$row->COL_SUBMODE . '</td>'; break;
-		case 'RSTS':    echo '<td class="d-none d-sm-table-cell">' . $row->COL_RST_SENT; if ($row->COL_STX_STRING) { echo '<span class="label">' . $row->COL_STX_STRING . '</span>';} echo '</td>'; break;
-		case 'RSTR':    echo '<td class="d-none d-sm-table-cell">' . $row->COL_RST_RCVD; if ($row->COL_SRX_STRING) { echo '<span class="label">' . $row->COL_SRX_STRING . '</span>';} echo '</td>'; break;
+      case 'RSTS':    echo '<td class="d-none d-sm-table-cell">' . $row->COL_RST_SENT; if ($row->COL_STX) { echo '<span data-toggle="tooltip" data-original-title="'.($row->COL_CONTEST_ID!=""?$row->COL_CONTEST_ID:"n/a").'" class="badge badge-light">'; printf("%03d", $row->COL_STX); echo '</span>';} if ($row->COL_STX_STRING) { echo '<span data-toggle="tooltip" data-original-title="'.($row->COL_CONTEST_ID!=""?$row->COL_CONTEST_ID:"n/a").'" class="badge badge-light">' . $row->COL_STX_STRING . '</span>';} echo '</td>'; break;
+      case 'RSTR':    echo '<td class="d-none d-sm-table-cell">' . $row->COL_RST_RCVD; if ($row->COL_SRX) { echo '<span data-toggle="tooltip" data-original-title="'.($row->COL_CONTEST_ID!=""?$row->COL_CONTEST_ID:"n/a").'" class="badge badge-light">'; printf("%03d", $row->COL_SRX); echo '</span>';} if ($row->COL_SRX_STRING) { echo '<span data-toggle="tooltip" data-original-title="'.($row->COL_CONTEST_ID!=""?$row->COL_CONTEST_ID:"n/a").'" class="badge badge-light">' . $row->COL_SRX_STRING . '</span>';} echo '</td>'; break;
 		case 'Country': echo '<td>' . ucwords(strtolower(($row->COL_COUNTRY))) . '</td>'; break;
 		case 'IOTA':    echo '<td>' . ($row->COL_IOTA) . '</td>'; break;
 		case 'SOTA':    echo '<td>' . ($row->COL_SOTA_REF) . '</td>'; break;
-		case 'Grid':    echo '<td>'; echo strlen($row->COL_GRIDSQUARE)==0?$row->COL_VUCC_GRIDS:$row->COL_GRIDSQUARE . '</td>'; break;
-		case 'Band':    echo '<td>'; if($row->COL_SAT_NAME != null) { echo $row->COL_SAT_NAME; } else { echo strtolower($row->COL_BAND); } echo '</td>'; break;
+		case 'WWFF':    echo '<td>' . ($row->COL_WWFF_REF) . '</td>'; break;
+		case 'Grid':    echo '<td>'; echoQrbCalcLink($row->station_gridsquare, $row->COL_VUCC_GRIDS, $row->COL_GRIDSQUARE); echo '</td>'; break;
+		case 'Band':    echo '<td>'; if($row->COL_SAT_NAME != null) { echo '<a href="https://db.satnogs.org/search/?q='.$row->COL_SAT_NAME.'" target="_blank">'.$row->COL_SAT_NAME.'</a></td>'; } else { echo strtolower($row->COL_BAND); } echo '</td>'; break;
 		case 'State':   echo '<td>' . ($row->COL_STATE) . '</td>'; break;
+		case 'Operator': echo '<td>' . ($row->COL_OPERATOR) . '</td>'; break;
+	}
+}
+
+function echoQrbCalcLink($mygrid, $grid, $vucc) {
+	if (strlen($grid) != 0) {
+		echo $grid . ' <a href="javascript:spawnQrbCalculator(\'' . $mygrid . '\',\'' . $grid . '\')"><i class="fas fa-globe"></i></a>';
+	} else if (strlen($vucc) != 0) {
+		echo $vucc .' <a href="javascript:spawnQrbCalculator(\'' . $mygrid . '\',\'' . $vucc . '\')"><i class="fas fa-globe"></i></a>';
 	}
 }
 ?>
@@ -80,6 +92,7 @@ function echo_table_col($row, $name) {
 
 			<?php
 			$i = 0;
+			if(!empty($last_five_qsos) > 0) {
 			foreach ($last_five_qsos->result() as $row) { ?>
 				<?php  echo '<tr class="tr'.($i & 1).'">'; ?>
 
@@ -111,7 +124,7 @@ function echo_table_col($row, $name) {
 						echo_table_col($row, $this->session->userdata('user_column4')==""?'Band':$this->session->userdata('user_column4'));
 					?>
 				</tr>
-			<?php $i++; } ?>
+			<?php $i++; } } ?>
 		</table>
 	</div>
   </div>
@@ -130,7 +143,7 @@ function echo_table_col($row, $name) {
 					<tr>
 						<td><?php echo $row['radio']; ?></td>
 						<td>
-							<?php if($row['radio'] == "SatPC32") { ?>
+							<?php if($row['prop_mode'] == 'SAT') { ?>
 								<?php echo $row['sat_name']; ?>
 							<?php } else { ?>
 								<?php echo $this->frequency->hz_to_mhz($row['frequency']); ?> (<?php echo $row['mode']; ?>)
@@ -149,18 +162,18 @@ function echo_table_col($row, $name) {
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_total'); ?></td>
-				<td><?php echo $total_qsos; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_total'); ?></td>
+				<td width="50%"><?php echo $total_qsos; ?></td>
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_year'); ?></td>
-				<td><?php echo $year_qsos; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_year'); ?></td>
+				<td width="50%"><?php echo $year_qsos; ?></td>
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_month'); ?></td>
-				<td><?php echo $month_qsos; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_month'); ?></td>
+				<td width="50%"><?php echo $month_qsos; ?></td>
 			</tr>
 		</table>
 
@@ -172,12 +185,12 @@ function echo_table_col($row, $name) {
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_worked'); ?></td>
-				<td><?php echo $total_countries; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_worked'); ?></td>
+				<td width="50%"><?php echo $total_countries; ?></td>
 			</tr>
 			<tr>
-				<td><a href="#" onclick="return false" data-original-title="QSL Cards / eQSL / LoTW" data-toggle="tooltip"><?php echo $this->lang->line('general_word_confirmed'); ?></a></td>
-				<td>
+				<td width="50%"><a href="#" onclick="return false" data-original-title="QSL Cards / eQSL / LoTW" data-toggle="tooltip"><?php echo $this->lang->line('general_word_confirmed'); ?></a></td>
+				<td width="50%">
 					<?php echo $total_countries_confirmed_paper; ?> /
 					<?php echo $total_countries_confirmed_eqsl; ?> /
 					<?php echo $total_countries_confirmed_lotw; ?>
@@ -185,33 +198,88 @@ function echo_table_col($row, $name) {
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_needed'); ?></td>
-				<td><?php echo $total_countries_needed; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_needed'); ?></td>
+				<td width="50%"><?php echo $total_countries_needed; ?></td>
 			</tr>
 		</table>
 
-		<?php if(($this->config->item('use_auth') && ($this->session->userdata('user_type') >= 2)) || $this->config->item('use_auth') === FALSE) { ?>
+		<?php if((($this->config->item('use_auth') && ($this->session->userdata('user_type') >= 2)) || $this->config->item('use_auth') === FALSE) && ($total_qsl_sent != 0 || $total_qsl_recv != 0 || $total_qsl_requested != 0)) { ?>
 		<table class="table table-striped">
 			<tr class="titles">
 				<td colspan="2"><i class="fas fa-envelope"></i> <?php echo $this->lang->line('general_word_qslcards'); ?></td>
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_sent'); ?></td>
-				<td><?php echo $total_qsl_sent; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_sent'); ?></td>
+				<td width="50%"><?php echo $total_qsl_sent; ?></td>
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_received'); ?></td>
-				<td><?php echo $total_qsl_recv; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_received'); ?></td>
+				<td width="50%"><?php echo $total_qsl_recv; ?></td>
 			</tr>
 
 			<tr>
-				<td><?php echo $this->lang->line('general_word_requested'); ?></td>
-				<td><?php echo $total_qsl_requested; ?></td>
+				<td width="50%"><?php echo $this->lang->line('general_word_requested'); ?></td>
+				<td width="50%"><?php echo $total_qsl_requested; ?></td>
 			</tr>
 		</table>
 		<?php } ?>
+
+		<?php if((($this->config->item('use_auth') && ($this->session->userdata('user_type') >= 2)) || $this->config->item('use_auth') === FALSE) && ($total_eqsl_sent != 0 || $total_eqsl_recv != 0)) { ?>
+		<table class="table table-striped">
+			<tr class="titles">
+				<td colspan="2"><i class="fas fa-address-card"></i> <?php echo $this->lang->line('general_word_eqslcards'); ?></td>
+			</tr>
+
+			<tr>
+				<td width="50%"><?php echo $this->lang->line('general_word_sent'); ?></td>
+				<td width="50%"><?php echo $total_eqsl_sent; ?></td>
+			</tr>
+
+			<tr>
+				<td width="50%"><?php echo $this->lang->line('general_word_received'); ?></td>
+				<td width="50%"><?php echo $total_eqsl_recv; ?></td>
+			</tr>
+		</table>
+		<?php } ?>
+
+		<?php if((($this->config->item('use_auth') && ($this->session->userdata('user_type') >= 2)) || $this->config->item('use_auth') === FALSE) && ($total_lotw_sent != 0 || $total_lotw_recv != 0)) { ?>
+		<table class="table table-striped">
+			<tr class="titles">
+				<td colspan="2"><i class="fas fa-list"></i> <?php echo $this->lang->line('general_word_lotw'); ?></td>
+			</tr>
+
+			<tr>
+				<td width="50%"><?php echo $this->lang->line('general_word_sent'); ?></td>
+				<td width="50%"><?php echo $total_lotw_sent; ?></td>
+			</tr>
+
+			<tr>
+				<td width="50%"><?php echo $this->lang->line('general_word_received'); ?></td>
+				<td width="50%"><?php echo $total_lotw_recv; ?></td>
+			</tr>
+		</table>
+		<?php } ?>
+
+		<?php if((($this->config->item('use_auth') && ($this->session->userdata('user_type') >= 2)) || $this->config->item('use_auth') === FALSE)) { ?>
+    	 <table class="table table-striped">
+        <tr class="titles">
+            <td colspan="2"><i class="fas fa-globe-europe"></i> VHF/UHF Century Club (VUCC)</td>
+        </tr>
+
+        <tr>
+            <td width="50%">Worked</td>
+            <td width="50%"><?php echo $vucc['All']['worked']; ?></td>
+        </tr>
+
+        <tr>
+            <td width="50%">Confirmed</td>
+            <td width="50%"><?php echo $vucc['All']['confirmed']; ?></td>
+        </tr>
+
+    </table>
+    <?php } ?>
 	</div>
   </div>
 </div>

@@ -8,16 +8,27 @@ class QSLPrint extends CI_Controller {
 		$this->load->helper(array('form', 'url'));
 
 		$this->load->model('user_model');
-		if(!$this->user_model->authorize(2)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
+
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 	}
 
 	public function index()
 	{
 		$this->load->model('user_model');
-		if(!$this->user_model->authorize(99)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
 
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 		$this->load->model('stations');
-		$data['station_profile'] = $this->stations->all();
+		$data['station_profile'] = $this->stations->all_of_user();
 
 		$this->load->model('qslprint_model');
 		$data['qsos'] = $this->qslprint_model->get_qsos_for_print();

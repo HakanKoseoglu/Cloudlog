@@ -156,7 +156,7 @@ class Lotw extends CI_Controller {
         		// New Certificate Store in Database
 
         		// Store Certificate Data into MySQL
-        		$this->LotwCert->store_certficiate($this->session->userdata('user_id'), $info['issued_callsign'], $dxcc, $info['validFrom'], $info['validTo_Date'], $info['pem_key'], $info['general_cert']);
+        		$this->LotwCert->store_certificate($this->session->userdata('user_id'), $info['issued_callsign'], $dxcc, $info['validFrom'], $info['validTo_Date'], $info['qso-first-date'], $info['qso-end-date'], $info['pem_key'], $info['general_cert']);
 
         		// Cert success flash message
         		$this->session->set_flashdata('Success', $info['issued_callsign'].' Certficiate Imported.');
@@ -229,6 +229,18 @@ class Lotw extends CI_Controller {
 						continue;
 					}
 
+					// Check if LotW certificate itself is valid
+					// Validty of QSO dates will be checked later
+					$current_date = date('Y-m-d H:i:s');
+					if ($current_date <= $data['lotw_cert_info']->date_created) {
+						echo $data['lotw_cert_info']->callsign.": LotW certificate not valid yet!";
+						continue;
+					}
+					if ($current_date >= $data['lotw_cert_info']->date_expires) {
+						echo $data['lotw_cert_info']->callsign.": LotW certificate expired!";
+						continue;
+					}
+
 					$this->load->model('Dxcc');
 					$data['station_profile_dxcc'] = $this->Dxcc->lookup_country($data['lotw_cert_info']->cert_dxcc);
 
@@ -236,7 +248,7 @@ class Lotw extends CI_Controller {
 
 					$this->load->model('Logbook_model');
 
-					$data['qsos'] = $this->Logbook_model->get_lotw_qsos_to_upload($data['station_profile']->station_id, $data['lotw_cert_info']->date_created, $data['lotw_cert_info']->date_expires);
+					$data['qsos'] = $this->Logbook_model->get_lotw_qsos_to_upload($data['station_profile']->station_id, $data['lotw_cert_info']->qso_start_date, $data['lotw_cert_info']->qso_end_date);
 
 					// Nothing to upload
 					if(empty($data['qsos']->result())){
@@ -420,12 +432,15 @@ class Lotw extends CI_Controller {
 
 		// Read Cert Data
 		$certdata= openssl_x509_parse($results['cert'],0);
-
+		
 		// Store Variables
 		$data['issued_callsign'] = $certdata['subject']['undefined'];
 		$data['issued_name'] = $certdata['subject']['commonName'];
-		$data['validFrom'] = $certdata['extensions']['1.3.6.1.4.1.12348.1.2'];
-		$data['validTo_Date'] = $certdata['extensions']['1.3.6.1.4.1.12348.1.3'];
+		$data['validFrom'] = date('Y-m-d H:i:s', $certdata['validFrom_time_t']);
+		$data['validTo_Date'] = date('Y-m-d H:i:s', $certdata['validTo_time_t']);
+		// https://oidref.com/1.3.6.1.4.1.12348.1
+		$data['qso-first-date'] = $certdata['extensions']['1.3.6.1.4.1.12348.1.2'];
+		$data['qso-end-date'] = $certdata['extensions']['1.3.6.1.4.1.12348.1.3'];
 
 		return $data;
 	}
@@ -466,6 +481,8 @@ class Lotw extends CI_Controller {
 				$tableheaders .= "<td>LoTW QSL Received</td>";
 				$tableheaders .= "<td>Date LoTW Confirmed</td>";
 				$tableheaders .= "<td>State</td>";
+				$tableheaders .= "<td>Gridsquare</td>";
+				$tableheaders .= "<td>IOTA</td>";
 				$tableheaders .= "<td>Log Status</td>";
 				$tableheaders .= "<td>LoTW Status</td>";
 			$tableheaders .= "</tr>";
@@ -512,8 +529,20 @@ class Lotw extends CI_Controller {
 					} else {
 						$state = "";
 					}
+					// Present only if the QSLing station specified a single valid grid square value in its station location uploaded to LoTW.
+					if (isset($record['gridsquare'])) {
+						$qsl_gridsquare = $record['gridsquare'];
+					} else {
+						$qsl_gridsquare = "";
+					}
 
-					$lotw_status = $this->logbook_model->lotw_update($time_on, $record['call'], $record['band'], $qsl_date, $record['qsl_rcvd'], $state);
+					if (isset($record['iota'])) {
+						$iota = $record['iota'];
+					} else {
+						$iota = "";
+					}
+
+					$lotw_status = $this->logbook_model->lotw_update($time_on, $record['call'], $record['band'], $qsl_date, $record['qsl_rcvd'], $state, $qsl_gridsquare, $iota);
 				}
 
 
@@ -525,6 +554,8 @@ class Lotw extends CI_Controller {
 					$table .= "<td>".$record['qsl_rcvd']."</td>";
 					$table .= "<td>".$qsl_date."</td>";
 					$table .= "<td>".$state."</td>";
+					$table .= "<td>".$qsl_gridsquare."</td>";
+					$table .= "<td>".$iota."</td>";
 					$table .= "<td>QSO Record: ".$status."</td>";
 					$table .= "<td>LoTW Record: ".$lotw_status."</td>";
 				$table .= "</tr>";
@@ -600,11 +631,8 @@ class Lotw extends CI_Controller {
 				$lotw_url .= "&password=" . $data['user_lotw_password'];
 				$lotw_url .= "&qso_query=1&qso_qsl='yes'&qso_qsldetail='yes'&qso_mydetail='yes'";
 
-				//TODO: Option to specifiy whether we download location data from LoTW or not
-				//$lotw_url .= "&qso_qsldetail=\"yes\";
-
-		        $lotw_url .= "&qso_qslsince=";
-		        $lotw_url .= "$lotw_last_qsl_date";
+				$lotw_url .= "&qso_qslsince=";
+				$lotw_url .= "$lotw_last_qsl_date";
 
 				file_put_contents($file, file_get_contents($lotw_url));
 
@@ -671,11 +699,8 @@ class Lotw extends CI_Controller {
 			$lotw_url .= "&password=" . $data['user_lotw_password'];
 			$lotw_url .= "&qso_query=1&qso_qsl='yes'&qso_qsldetail='yes'&qso_mydetail='yes'";
 
-			//TODO: Option to specifiy whether we download location data from LoTW or not
-			//$lotw_url .= "&qso_qsldetail=\"yes\";
-
-            $lotw_url .= "&qso_qslsince=";
-            $lotw_url .= "$lotw_last_qsl_date";
+			$lotw_url .= "&qso_qslsince=";
+			$lotw_url .= "$lotw_last_qsl_date";
 
 			// Only pull back entries that belong to this callsign
 			$lotw_call = $this->session->userdata('user_callsign');
@@ -913,6 +938,20 @@ class Lotw extends CI_Controller {
 	}
 
 	/*
+	|	Function: lotw_ca_province_map
+	|	Requires: candian province map $ca_province
+	*/
+	function lotw_ca_province_map($ca_prov) {
+		switch ($ca_prov):
+			case "QC":
+				return "PQ";
+				break;
+			default:
+				return $ca_prov;
+		endswitch;
+	}
+
+	/*
 	|	Function: mode_map
 	|	Requires: mode as $mode, submode as $submode
 	|
@@ -927,17 +966,79 @@ class Lotw extends CI_Controller {
 				if ($submode == "FT4") {
 					return "FT4";
 					break;
-				} elseif ($submode == "JS8") {
-						return "JS8";
-						break;
 				} elseif ($submode == "FST4") {
-						return "FST4";
-						break;
+					return "FST4";
+					break;
+				} elseif ($submode == "MFSK16") {
+					return "MFSK16";
+					break;
+				} elseif ($submode == "MFSK8") {
+					return "MFSK8";
+					break;
 				} elseif ($submode == "Q65") {
-						return "Q65";
-						break;
+					return "Q65";
+					break;
 				} else {
-					return "MFSK";
+					return "DATA";
+					break;
+				}
+			case "PSK":
+				if ($submode == "PSK31") {
+					return "PSK31";
+					break;
+				} elseif ($submode == "PSK63") {
+					return "PSK63";
+					break;
+				} elseif ($submode == "BPSK125") {
+					return "PSK125";
+					break;
+				} elseif ($submode == "BPSK31") {
+					return "PSK31";
+					break;
+				} elseif ($submode == "BPSK63") {
+					return "PSK63";
+					break;
+				} elseif ($submode == "FSK31") {
+					return "FSK31";
+					break;
+				} elseif ($submode == "PSK10") {
+					return "PSK10";
+					break;
+				} elseif ($submode == "PSK125") {
+					return "PSK125";
+					break;
+				} elseif ($submode == "PSK500") {
+					return "PSK500";
+					break;
+				} elseif ($submode == "PSK63F") {
+					return "PSK63F";
+					break;
+				} elseif ($submode == "PSKAM10") {
+					return "PSKAM";
+					break;
+				} elseif ($submode == "PSKAM31") {
+					return "PSKAM";
+					break;
+				} elseif ($submode == "PSKAM50") {
+					return "PSKAM";
+					break;
+				} elseif ($submode == "PSKFEC31") {
+					return "PSKFEC31";
+					break;
+				} elseif ($submode == "QPSK125") {
+					return "PSK125";
+					break;
+				} elseif ($submode == "QPSK31") {
+					return "PSK31";
+					break;
+				} elseif ($submode == "QPSK63") {
+					return "PSK63";
+					break;
+				} elseif ($submode == "PSK2K") {
+					return "PSK2K";
+					break;
+				} else {
+					return "DATA";
 					break;
 				}
 			default:

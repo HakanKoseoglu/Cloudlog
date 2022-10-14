@@ -32,7 +32,9 @@
 	      fill: 'blue'
 	    },
 	    'stateSpecificStyles': {
-            <?php foreach ($was_array as $was => $value) { ?>
+            <?php 
+				if ($was_array) {
+				foreach ($was_array as $was => $value) { ?>
     '<?php echo $was; ?>' :
     <?php
         foreach ($value  as $key) {
@@ -52,6 +54,7 @@
                 }
             }
         }
+	}
 ?>
 	    },
 		  // Show tooltip when hovering over state
@@ -143,8 +146,12 @@
 	</script>
 </head>
 <body>
-  <div id="map" style="width: 930px; height: 630px;"></div>
-  <div id="tooltip2"></div>
+<div class="container">
+  	<div class="row">
+		<div class="col-lg-12 col-xs-12 col-md-12 col-sm-12" id="map" style="width: 930px; height: 630px;"></div>
+		<div id="tooltip2"></div>
+	</div>
+</div>
 
   <ul>
     <li>Red - Not Worked</li>

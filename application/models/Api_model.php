@@ -8,36 +8,58 @@
 
 class API_Model extends CI_Model {
 
-    function __construct()
-    {
-        // Call the Model constructor
-        parent::__construct();
-    }
-
     // GET API Keys
     function keys() {
+		$this->db->where('user_id', $this->session->userdata('user_id'));
     	return $this->db->get('api');
     }
 
+	function CountKeysWithNoUserID() {
+		$this->db->where('user_id =', NULL);
+		$query = $this->db->get('api');
+		return $query->num_rows();
+    }
+
+	function ClaimAllAPIKeys($id = NULL) {
+		// if $id is empty then use session user_id
+		if (empty($id)) {
+			// Get the first USER ID from user table in the database
+			$id = $this->db->get("users")->row()->user_id;
+		}
+
+		$data = array(
+				'user_id' => $id,
+		);
+			
+		$this->db->update('api', $data);
+	}
+
     function key_description($key) {
-    	$this->db->where('key', $key); 
+		$this->db->where('user_id', $this->session->userdata('user_id'));
+    	$this->db->where('key', $key);
     	$query = $this->db->get('api');
 
     	return $query->result_array()[0];
     }
 
+	function key_userid($key) {
+    	$this->db->where('key', $key);
+    	$query = $this->db->get('api');
+
+    	return $query->result_array()[0]['user_id'];
+    }
 
     function update_key_description($key, $description) {
-    	
+
     	$data = array(
         'description' => xss_clean($description),
 		);
 
 		$this->db->where('key', xss_clean($key));
+		$this->db->where('user_id', $this->session->userdata('user_id'));
 		$this->db->update('api', xss_clean($data));
 
     }
-
 
     function country_worked($dxcc_num, $band, $mode){
 
@@ -93,35 +115,38 @@ class API_Model extends CI_Model {
 
 
     function delete_key($key) {
+		$this->db->where('user_id', $this->session->userdata('user_id'));
     	$this->db->where('key', xss_clean($key));
 		$this->db->delete('api');
     }
     // Generate API Key
     function generate_key($rights) {
-    	
+
     	// Expects either rw (Read, Write) or r (read only)
 
     	// Generate Unique Key
     	$data['key'] = uniqid("cl");
 
     	$data['rights'] = $rights;
-    	
+
     	// Set API key to active
     	$data['status'] = "active";
 
-    	$this->db->insert('api', $data); 
+		$data['user_id'] = $this->session->userdata('user_id');
+
+    	$this->db->insert('api', $data);
 
     }
 
     function access($key) {
-    	
+
       // No key = no access, mate
       if(!$key) {
         return $status = "No Key Found";
       }
 
     	// Check that the key is valid
-    	$this->db->where('key', $key); 
+    	$this->db->where('key', $key);
      	$query = $this->db->get('api');
 
 		  if ($query->num_rows() > 0)
@@ -245,6 +270,9 @@ class API_Model extends CI_Model {
 
 		// Append the table we're pulling data from
 		$q .= "FROM ".$this->config->item('table_name');
+		if (isset($arguments["join_station_profile"]) && $arguments["join_station_profile"]) {
+			$q .= " INNER JOIN station_profile ON ".$this->config->item('table_name').".station_id = station_profile.station_id";
+		}
 
 		// Parse the 'query' string, which is converted into a standard MySQL 'WHERE'
 		// clause.
@@ -334,7 +362,7 @@ class API_Model extends CI_Model {
 			$s[12]  = '/~([a-zA-Z0-9\-\_\*\(\)\=\~]+)/';
 			// *, which becomes '%'
 			$s[13]  = '/\*/';
-	
+
 			$r[0]   = ' AND ';
 			$r[1]   = ' OR ';
 			$r[2]   = ' < ';
@@ -410,7 +438,7 @@ class API_Model extends CI_Model {
 		'COL_CONTEST_ID'				=> array('Name' => 'ContestID', 'Description' => '', 'Type' => ''),
 		'COL_COUNTRY'					=> array('Name' => 'Country', 'Description' => '', 'Type' => ''),
 		'COL_CQZ'						=> array('Name' => 'CQZone', 'Description' => '', 'Type' => ''),
-		'COL_DARC_DOK'					=> array('Name' => 'Dok', 'Description' => '', 'Type' => ''),
+		'COL_DARC_DOK'					=> array('Name' => 'DOK', 'Description' => '', 'Type' => ''),
 		'COL_DISTANCE'					=> array('Name' => 'Distance', 'Description' => '', 'Type' => ''),
 		'COL_DXCC'						=> array('Name' => 'DXCC', 'Description' => '', 'Type' => ''),
 		'COL_EMAIL'						=> array('Name' => 'EMail', 'Description' => '', 'Type' => ''),

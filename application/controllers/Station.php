@@ -31,7 +31,7 @@ class Station extends CI_Controller {
 		$this->load->view('interface_assets/footer');
 	}
 
-	public function create() 
+	public function create()
 	{
 		$this->load->model('stations');
 		$this->load->model('dxcc');
@@ -52,56 +52,92 @@ class Station extends CI_Controller {
 			$this->load->view('interface_assets/footer');
 		}
 		else
-		{	
+		{
 			$this->stations->add();
-			
+
 			redirect('station');
 		}
 	}
 
 	public function edit($id)
 	{
+		$data = $this->load_station_for_editing($id);
+		$data['page_title'] = "Edit Station Location: {$data['my_station_profile']->station_profile_name}";
+
+		if ($this->form_validation->run() == FALSE) {
+			$this->load->view('interface_assets/header', $data);
+			$this->load->view('station_profile/edit');
+			$this->load->view('interface_assets/footer');
+		} else {
+			$this->stations->edit();
+
+			$data['notice'] = "Station Profile " . $this->security->xss_clean($this->input->post('station_profile_name', true)) . " Updated";
+
+			redirect('station');
+		}
+	}
+
+	public function copy($id)
+	{
+		$data = $this->load_station_for_editing($id);
+		$data['page_title'] = "Duplicate Station Location: {$data['my_station_profile']->station_profile_name}";
+
+		// we NULLify station_id and station_profile_name to make sure we are creating a new station
+		$data['copy_from'] = $data['my_station_profile']->station_id;
+		$data['my_station_profile']->station_id = NULL;
+		$data['my_station_profile']->station_profile_name = '';
+
+		if ($this->form_validation->run() == FALSE)
+		{
+			$this->load->view('interface_assets/header', $data);
+			$this->load->view('station_profile/edit');
+			$this->load->view('interface_assets/footer');
+		}
+		else
+		{
+			$this->stations->add();
+
+			redirect('station');
+		}
+	}
+
+	function load_station_for_editing($id): array
+	{
 		$this->load->library('form_validation');
 
 		$this->load->model('stations');
 		$this->load->model('dxcc');
-        $this->load->model('logbook_model');
+		$this->load->model('logbook_model');
 
-        $data['iota_list'] = $this->logbook_model->fetchIota();
+		$data['iota_list'] = $this->logbook_model->fetchIota();
 
 		$item_id_clean = $this->security->xss_clean($id);
 
 		$station_profile_query = $this->stations->profile($item_id_clean);
 
 		$data['my_station_profile'] = $station_profile_query->row();
-		
-		$data['dxcc_list'] = $this->dxcc->list();
 
-		$data['page_title'] = "Edit Station Location";
+		$data['dxcc_list'] = $this->dxcc->list();
 
 		$this->form_validation->set_rules('station_profile_name', 'Station Profile Name', 'required');
 
-        if ($this->form_validation->run() == FALSE)
-        {
-        	$this->load->view('interface_assets/header', $data);
-            $this->load->view('station_profile/edit');
-            $this->load->view('interface_assets/footer');
-        }
-        else
-        {
-            $this->stations->edit();
+		return $data;
+	}
 
-            $data['notice'] = "Station Profile ".$this->security->xss_clean($this->input->post('station_profile_name', true))." Updated";
-
-            redirect('station');
-        }
+	// This function allows a user to claim ownership of a station location
+	function claim_user($id) {
+		// $id is the profile id
+		$this->load->model('stations');
+		$this->stations->claim_user($id);
+		
+		redirect('station');
 	}
 
 	function reassign_profile($id) {
 		// $id is the profile that needs reassigned to QSOs
 		$this->load->model('stations');
 		$this->stations->reassign($id);
-		
+
 		//$this->stations->logbook_session_data();
 		redirect('station');
 	}
@@ -109,7 +145,7 @@ class Station extends CI_Controller {
 	function set_active($current, $new) {
 		$this->load->model('stations');
 		$this->stations->set_active($current, $new);
-		
+
 		//$this->stations->logbook_session_data();
 		redirect('station');
 	}
@@ -117,14 +153,14 @@ class Station extends CI_Controller {
 	function assign_all() {
 		$this->load->model('Logbook_model');
 		$this->Logbook_model->update_all_station_ids();
-		
+
 		redirect('station');
 	}
 
 	public function delete($id) {
 		$this->load->model('stations');
 		$this->stations->delete($id);
-		
+
 		redirect('station');
 	}
 
@@ -156,8 +192,8 @@ class Station extends CI_Controller {
                 $i = 0;
                 foreach ($result as &$value) {
                     $county = explode(',', $value);
-                    // Limit to 100 as to not slowdown browser too much
-                    if (count($json) <= 100) {
+                    // Limit to 300 as to not slowdown browser too much
+                    if (count($json) <= 300) {
                         $json[] = ["name"=>$county[1]];
                     }
                 }

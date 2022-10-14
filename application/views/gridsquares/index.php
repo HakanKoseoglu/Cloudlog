@@ -25,16 +25,14 @@
 <div class="container">
 	<?php if ($this->uri->segment(2) == "satellites") { ?>
 		<div class="alert alert-success" role="alert">
-			Confirmed is Green | Worked but not confirmed is Red
-			[This grid square map is publically viewable for sharing]
+			Confirmed is Green <span id="confirmed_grids"></span>| Worked but not confirmed is Red <span id="worked_grids"></span>|<span id="sum_grids"></span>
 		</div>
 	<?php } ?>
 
 	<?php if ($this->uri->segment(2) == "band") { ?>
 		<div class="alert alert-success" role="alert">
-			Confirmed is Green | Worked but not confirmed is Red <br>
-			[This map does not include satellite, internet or repeater QSOs] <br>
-			[This grid square map is publically viewable for sharing]
+			Confirmed is Green <span id="confirmed_grids"></span>| Worked but not confirmed is Red <span id="worked_grids"></span>|<span id="sum_grids"></span><br>
+			[This map does not include satellite, internet or repeater QSOs]
 		</div>
 	<?php } ?>
 </div>
@@ -56,7 +54,7 @@
 		      <th scope="col">Callsign</th>
 		      <th scope="col">Mode</th>
 		      <th scope="col">Band</th>
-		      <th scope="col">Locator</th>
+		      <th scope="col">Gridsquare</th>
 		    </tr>
 		  </thead>
 		  <tbody>

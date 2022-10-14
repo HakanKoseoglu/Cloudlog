@@ -56,7 +56,7 @@
 
 		  <div class="form-group">
 		    <label for="stationCityInput">Station City</label>
-		    <input type="text" class="form-control" name="city" id="stationCityInput" aria-describedby="stationCityInputHelp" required>
+		    <input type="text" class="form-control" name="city" id="stationCityInput" aria-describedby="stationCityInputHelp">
 		    <small id="stationCityInputHelp" class="form-text text-muted">Station city. For example: Inverness</small>
 		  </div>
 
@@ -158,7 +158,14 @@
 
 		  <div class="form-group">
 		    <label for="stationGridsquareInput">Gridsquare</label>
-		    <input type="text" class="form-control" name="gridsquare" id="stationGridsquareInput" aria-describedby="stationGridInputHelp" required>
+
+			<div class="input-group mb-3">
+			<input type="text" class="form-control" name="gridsquare" id="stationGridsquareInput" aria-describedby="stationGridInputHelp" required>
+			<div class="input-group-append">
+				<button type="button" class="btn btn-outline-secondary" onclick="getLocation()"><i class="fas fa-compass"></i> Get Gridsquare</button>
+			</div>
+			</div>
+
 		    <small id="stationGridInputHelp" class="form-text text-muted">Station grid square. For example: IO87IP</small>
 		    <small id="stationGridInputHelp" class="form-text text-muted">If you are located on a grid line, enter multiple grid squares separated with commas. For example: IO77,IO78,IO87,IO88.</small>
 		  </div>
@@ -186,15 +193,21 @@
 		  </div>
 
 		  <div class="form-group">
+		    <label for="stationWWFFInput">WWFF Reference</label>
+		    <input type="text" class="form-control" name="wwff" id="stationWWFFInput" aria-describedby="stationWWFFInputHelp">
+		    <small id="stationWWFFInputHelp" class="form-text text-muted">Station WWFF reference (e.g. DLFF-0069).</small>
+		  </div>
+
+		  <div class="form-group">
 		    <label for="stationSigInput">Signature</label>
 		    <input type="text" class="form-control" name="sig" id="stationSigInput" aria-describedby="stationSigInputHelp">
-		    <small id="stationSigInputHelp" class="form-text text-muted">Station Signature (e.g. WWFF).</small>
+		    <small id="stationSigInputHelp" class="form-text text-muted">Station Signature (e.g. POTA).</small>
 		  </div>
 
 		  <div class="form-group">
 		    <label for="stationSigInfoInput">Signature Info</label>
 		    <input type="text" class="form-control" name="sig_info" id="stationSigInfoInput" aria-describedby="stationSigInfoInputHelp">
-		    <small id="stationSigInfoInput" class="form-text text-muted">Station Signature Info (e.g. DLFF-0029).</small>
+		    <small id="stationSigInfoInput" class="form-text text-muted">Station Signature Info (e.g. PA-0150).</small>
 		  </div>
 
             <div class="form-group">

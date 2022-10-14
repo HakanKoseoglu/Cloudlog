@@ -30,10 +30,16 @@
 		    <select class="custom-select" name="user_type">
 			<?php
 				$levels = $this->config->item('auth_level');
-				while (list($key, $val) = each($levels)) {
-			?>
-					<option value="<?php echo $key; ?>" <?php if(isset($user_type)) { if($user_type == $key) { echo "selected=\"selected\""; } } ?>><?php echo $val; ?></option>
-				<?php } ?>
+				foreach ($levels as $key => $value) {
+					echo '<option value="'. $key . '"';
+					if(isset($user_type)) { 
+						if($user_type == $key) { 
+							echo "selected=\"selected\""; 
+						} 
+					} 
+					echo '>' . $value . '</option>';
+				} 
+				?>
 			</select>
 		  </div>
 
@@ -68,7 +74,7 @@
 		</div>
 
 		<div class="form-group">
-		    <label>Locator</label>
+		    <label>Gridsquare</label>
 		    <input class="form-control" type="text" name="user_locator" value="<?php if(isset($user_locator)) { echo $user_locator; } ?>" />
 			<?php if(isset($locator_error)) { echo "<div class=\"small error\">".$locator_error."</div>"; } ?>
 		</div>
@@ -111,12 +117,15 @@
         <div class="form-group">
             <label for="user_stylesheet">Theme</label>
             <select class="custom-select" id="user_stylesheet" name="user_stylesheet" required>
-                <option value='default' selected="selected">Default</option>
-                <option value='blue'>Blue</option>
-                <option value='cosmo'>Cosmo</option>
-                <option value='cyborg'>Cyborg (Dark)</option>
-                <option value='darkly'>Darkly (Dark)</option>
-                <option value='superhero'>Superhero (Dark)</option>
+				<?php
+				foreach ($themes as $theme) {
+					echo '<option value="' . $theme->foldername . '"';
+					if( $theme->foldername == 'default') {
+						echo 'selected="selected"';
+					}
+					echo '>' . $theme->name . '</option>';
+				}
+				?>
             </select>
         </div>
 
@@ -149,6 +158,7 @@
 				<option value="SOTA"><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
 				<option value="State"><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 				<option value="Grid"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+				<option value="Operator"><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 			</select>
 			</div>
 
@@ -164,6 +174,7 @@
 				<option value="SOTA"><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
 				<option value="State"><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 				<option value="Grid"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+				<option value="Operator"><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 			</select>
 			</div>
 
@@ -179,6 +190,7 @@
 				<option value="SOTA"><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
 				<option value="State"><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 				<option value="Grid"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+				<option value="Operator"><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 			</select>
 			</div>
 
@@ -194,6 +206,7 @@
 				<option value="SOTA"><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
 				<option value="State"><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 				<option value="Grid"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+				<option value="Operator"><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 			</select>
 			</div>
 
@@ -209,8 +222,18 @@
 					<option value="SOTA"><?php echo $this->lang->line('gen_hamradio_sota'); ?></option>
 					<option value="State"><?php echo $this->lang->line('gen_hamradio_state'); ?></option>
 					<option value="Grid"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></option>
+					<option value="Operator"><?php echo $this->lang->line('gen_hamradio_operator'); ?></option>
 				</select>
 			</div>
+		</div>
+
+		<div class="form-group">
+			<label for="profileimages">Show profile picture of QSO partner from qrz.com/hamqth.com profile in the log QSO section.</label>
+			<select class="custom-select" id="profileimages" name="user_show_profile_image">
+				<option value="0"><?php echo $this->lang->line('general_word_no'); ?></option>
+				<option value="1"><?php echo $this->lang->line('general_word_yes'); ?></option>
+			</select>
+			<div class="small form-text text-muted">Please set your qrz.com/hamqth.com credentials in the general config file.</div></td>
 		</div>
 
 		<input type="hidden" name="id" value="<?php echo $this->uri->segment(3); ?>" />

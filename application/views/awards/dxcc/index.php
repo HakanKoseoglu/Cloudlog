@@ -9,7 +9,7 @@
                 <div class="col-md-2 control-label" for="checkboxes">Deleted DXCC</div>
                 <div class="col-md-10">
                     <div class="form-check-inline">
-                        <input class="form-check-input" type="checkbox" name="includedeleted" id="includedeleted" value="1" <?php if ($this->input->post('includedeleted') || $this->input->method() !== 'post') echo ' checked="checked"'; ?> >
+                        <input class="form-check-input" type="checkbox" name="includedeleted" id="includedeleted" value="1" <?php if ($this->input->post('includedeleted')) echo ' checked="checked"'; ?> >
                         <label class="form-check-label" for="includedeleted">Include deleted</label>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                         <td>#</td>
                         <td>DXCC Name</td>
                         <td>Prefix</td>';
-        if ($this->input->post('includedeleted') || $this->input->method() !== 'post')
+        if ($this->input->post('includedeleted'))
             echo '
                         <td>Deleted</td>';
         foreach($bands as $band) {
@@ -162,7 +162,7 @@
         <thead>
         <tr><td></td>';
 
-        foreach($worked_bands as $band) {
+        foreach($bands as $band) {
             echo '<td>' . $band . '</td>';
         }
         echo '<td>Total</td>

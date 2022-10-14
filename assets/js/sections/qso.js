@@ -1,5 +1,22 @@
 $( document ).ready(function() {
 
+	$("#locator")
+		.popover({ placement: 'top', title: 'Gridsquare Formatting', content: "Enter multiple (4-digit) grids separated with commas. For example: IO77,IO78" })
+		.focus(function () {
+			$('#locator').popover('show');
+		})
+		.blur(function () {
+			$('#locator').popover('hide');
+		});
+
+	$("#sat_name").change(function(){
+		var sat = $("#sat_name").val();
+		if (sat == "") {
+			$("#sat_mode").val("");
+			$("#selectPropagation").val("");
+		}
+	});
+
 	$('#input_usa_state').change(function(){
 		var state = $("#input_usa_state option:selected").text();
 		if (state != "") {
@@ -69,6 +86,44 @@ $( document ).ready(function() {
 				}
 			});
 		}
+	});
+
+	$('#sota_ref').change(function(){
+		$('#sota_info').html('<a target="_blank" href="https://summits.sota.org.uk/summit/'+$('#sota_ref').val()+'"><img width="32" height="32" src="'+base_url+'images/icons/sota.org.uk.png"></a>'); 
+		$('#sota_info').attr('title', 'Lookup '+$('#sota_ref').val()+' summit info on sota.org.uk');
+	});
+
+	$('#wwff_ref').selectize({
+		maxItems: 1,
+		closeAfterSelect: true,
+		loadThrottle: 250,
+		valueField: 'name',
+		labelField: 'name',
+		searchField: 'name',
+		options: [],
+		create: false,
+		load: function(query, callback) {
+			if (!query || query.length < 3) return callback();  // Only trigger if 3 or more characters are entered
+			$.ajax({
+				url: base_url+'index.php/qso/get_wwff',
+				type: 'GET',
+				dataType: 'json',
+				data: {
+					query: query,
+				},
+				error: function() {
+					callback();
+				},
+				success: function(res) {
+					callback(res);
+				}
+			});
+		}
+	});
+
+	$('#wwff_ref').change(function(){
+		$('#wwff_info').html('<a target="_blank" href="https://wwff.co/directory/?showRef='+$('#wwff_ref').val()+'"><img width="32" height="32" src="'+base_url+'images/icons/wwff.co.png"></a>'); 
+		$('#wwff_info').attr('title', 'Lookup '+$('#wwff_ref').val()+' reference info on wwff.co');
 	});
 
 	$('#darc_dok').selectize({
@@ -240,12 +295,16 @@ function reset_fields() {
 	$('#locator_info').text("");
 	$('#country').val("");
 	$('#lotw_info').text("");
+	$('#qrz_info').text("");
+	$('#hamqth_info').text("");
+	$('#sota_info').text("");
 	$('#dxcc_id').val("");
 	$('#cqz').val("");
 	$('#name').val("");
 	$('#qth').val("");
 	$('#locator').val("");
 	$('#iota_ref').val("");
+	$('#sota_ref').val("");
 	$("#locator").removeClass("workedGrid");
 	$("#locator").removeClass("newGrid");
 	$("#callsign").removeClass("workedGrid");
@@ -253,19 +312,29 @@ function reset_fields() {
 	$('#callsign_info').removeClass("badge-secondary");
 	$('#callsign_info').removeClass("badge-success");
 	$('#callsign_info').removeClass("badge-danger");
+	$('#callsign-image').attr('style', 'display: none;');
+	$('#callsign-image-content').text("");
 	$('#qsl_via').val("");
 	$('#callsign_info').text("");
 	$('#input_usa_state').val("");
 	$('#qso-last-table').show();
 	$('#partial_view').hide();
+	var $select = $('#wwff_ref').selectize();
+	var selectize = $select[0].selectize;
+	selectize.clear();
+	var $select = $('#darc_dok').selectize();
+	var selectize = $select[0].selectize;
+	selectize.clear();
+	$select = $('#stationCntyInput').selectize();
+	selectize = $select[0].selectize;
+	selectize.clear();
 
-	mymap.setView([51.505, -0.09], 13);
+	mymap.setView(pos, 12);
 	mymap.removeLayer(markers);
 	$('.callsign-suggest').hide();
 }
 
 $("#callsign").focusout(function() {
-
 	if ($(this).val().length >= 3) {
 
 		// Temp store the callsign
@@ -289,7 +358,7 @@ $("#callsign").focusout(function() {
 		find_callsign.replace(/\//g, "-");
 
 		// Replace / in a callsign with - to stop urls breaking
-		$.getJSON('logbook/json/' + find_callsign.replace(/\//g, "-") + '/' + sat_type + '/' + json_band + '/' + json_mode, function(result)
+		$.getJSON('logbook/json/' + find_callsign.replace(/\//g, "-") + '/' + sat_type + '/' + json_band + '/' + json_mode + '/' + $('#stationProfile').val(), function(result)
 		{
 			// Make sure the typed callsign and temp callsign match
 			if($('#callsign').val = temp_callsign){
@@ -345,6 +414,23 @@ $("#callsign").focusout(function() {
 				if(result.lotw_member == "active") {
 					$('#lotw_info').text("LoTW");
 				}
+				$('#qrz_info').html('<a target="_blank" href="https://www.qrz.com/db/'+find_callsign+'"><img width="32" height="32" src="'+base_url+'images/icons/qrz.com.png"></a>'); 
+				$('#qrz_info').attr('title', 'Lookup '+find_callsign+' info on qrz.com');
+				$('#hamqth_info').html('<a target="_blank" href="https://www.hamqth.com/'+find_callsign+'"><img width="32" height="32" src="'+base_url+'images/icons/hamqth.com.png"></a>'); 
+				$('#hamqth_info').attr('title', 'Lookup '+find_callsign+' info on hamqth.com');
+
+				var $dok_select = $('#darc_dok').selectize();
+				var dok_selectize = $dok_select[0].selectize;
+				if (result.dxcc.adif == '230') {
+					$.get('lookup/dok/' + $('#callsign').val().toUpperCase(), function(result) {
+						if (result) {
+							dok_selectize.addOption({name: result});
+							dok_selectize.setValue(result, false);
+						}
+					});
+				} else {
+					dok_selectize.clear();
+				}
 
 				$('#dxcc_id').val(result.dxcc.adif);
 				$('#cqz').val(result.dxcc.cqz);
@@ -361,9 +447,11 @@ $("#callsign").focusout(function() {
 				if (typeof result.latlng !== "undefined" && result.latlng !== false) {
 					var marker = L.marker([result.latlng[0], result.latlng[1]], {icon: redIcon});
 					mymap.panTo([result.latlng[0], result.latlng[1]]);
+					mymap.setView([result.latlng[0], result.latlng[1]], 8);
 				} else {
 					var marker = L.marker([result.dxcc.lat, result.dxcc.long], {icon: redIcon});
 					mymap.panTo([result.dxcc.lat, result.dxcc.long]);
+					mymap.setView([result.dxcc.lat, result.dxcc.long], 8);
 				}
 
 				markers.addLayer(marker).addTo(mymap);
@@ -410,6 +498,12 @@ $("#callsign").focusout(function() {
 					$('#qth').val(result.callsign_qth);
 				}
 
+				/* Find link to qrz.com picture */
+				if (result.image != "n/a") {
+					$('#callsign-image-content').html('<img class="callsign-image-pic" src="'+result.image+'">');
+					$('#callsign-image').attr('style', 'display: true;');
+				}
+
 				/*
 				* Update state with returned value
 				*/
@@ -417,6 +511,15 @@ $("#callsign").focusout(function() {
 					$("#input_usa_state").val(result.callsign_state).trigger('change');
 				}
 
+				/*
+				* Update county with returned value
+				*/
+				if( $('#stationCntyInput').has('option').length == 0 && result.callsign_us_county != "") {
+					var $county_select = $('#stationCntyInput').selectize();
+					var county_selectize = $county_select[0].selectize;
+					county_selectize.addOption({name: result.callsign_us_county});
+					county_selectize.setValue(result.callsign_us_county, false);
+				}
 
 				if($('#iota_ref').val() == "") {
 					$('#iota_ref').val(result.callsign_iota);
@@ -439,6 +542,7 @@ $("#callsign").focusout(function() {
 		$('#qth').val("");
 		$('#locator').val("");
 		$('#iota_ref').val("");
+		$('#sota_ref').val("");
 		$("#locator").removeClass("workedGrid");
 		$("#locator").removeClass("newGrid");
 		$("#callsign").removeClass("workedGrid");
@@ -565,11 +669,12 @@ $("#locator").keyup(function(){
 					var marker = L.marker([result[0], result[1]], {icon: redIcon});
 					mymap.setZoom(8);
 					mymap.panTo([result[0], result[1]]);
+					mymap.setView([result[0], result[1]], 8);
 				}
 				markers.addLayer(marker).addTo(mymap);
 			})
 
-			$('#locator_info').load("logbook/searchbearing/" + $(this).val()).fadeIn("slow");
+			$('#locator_info').load("logbook/searchbearing/" + $(this).val() + "/" + $('#stationProfile').val()).fadeIn("slow");
 		}
 	}
 });

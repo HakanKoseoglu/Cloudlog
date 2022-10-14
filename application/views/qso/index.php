@@ -21,9 +21,11 @@
             <a class="nav-link" id="general-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="false"><?php echo $this->lang->line('general_word_general'); ?></a>
           </li>
 
+<?php if ($sat_active) { ?>
           <li class="nav-item">
             <a class="nav-link" id="satellite-tab" data-toggle="tab" href="#satellite" role="tab" aria-controls="satellite" aria-selected="false"><?php echo $this->lang->line('general_word_satellite_short'); ?></a>
           </li>
+<?php } ?>
 
           <li class="nav-item">
             <a class="nav-link" id="notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="notes" aria-selected="false"><?php echo $this->lang->line('general_word_notes'); ?></a>
@@ -59,10 +61,16 @@
 
 
               <!-- Callsign Input -->
-              <div class="form-group">
-                <label for="callsign"><?php echo $this->lang->line('gen_hamradio_callsign'); ?></label>
-                <input type="text" class="form-control" id="callsign" name="callsign" required>
-                <small id="callsign_info" class="badge badge-secondary"></small> <small id="lotw_info" class="badge badge-light"></small>
+              <div class="form-row">
+                <div class="form-group col-md-9">
+                  <label for="callsign"><?php echo $this->lang->line('gen_hamradio_callsign'); ?></label>
+                  <input type="text" class="form-control" id="callsign" name="callsign" required>
+                  <small id="callsign_info" class="badge badge-secondary"></small> <small id="lotw_info" class="badge badge-light"></small>
+                </div>
+                <div class="form-group col-md-3 align-self-center">
+                  <small id="qrz_info" class="badge badge-secondary"></small>
+                  <small id="hamqth_info" class="badge badge-secondary"></small>
+                </div>
               </div>
 
               <div class="form-row">
@@ -85,36 +93,16 @@
                   <label for="band"><?php echo $this->lang->line('gen_hamradio_band'); ?></label>
 
                   <select id="band" class="form-control form-control-sm" name="band">
-                    <optgroup label="HF">
-                      <option value="160m" <?php if($this->session->userdata('band') == "160m") { echo "selected=\"selected\""; } ?>>160m</option>
-                      <option value="80m" <?php if($this->session->userdata('band') == "80m") { echo "selected=\"selected\""; } ?>>80m</option>
-                      <option value="60m" <?php if($this->session->userdata('band') == "60m") { echo "selected=\"selected\""; } ?>>60m</option>
-                      <option value="40m" <?php if($this->session->userdata('band') == "40m") { echo "selected=\"selected\""; } ?>>40m</option>
-                      <option value="30m" <?php if($this->session->userdata('band') == "30m") { echo "selected=\"selected\""; } ?>>30m</option>
-                      <option value="20m" <?php if($this->session->userdata('band') == "20m") { echo "selected=\"selected\""; } ?>>20m</option>
-                      <option value="17m" <?php if($this->session->userdata('band') == "17m") { echo "selected=\"selected\""; } ?>>17m</option>
-                      <option value="15m" <?php if($this->session->userdata('band') == "15m") { echo "selected=\"selected\""; } ?>>15m</option>
-                      <option value="12m" <?php if($this->session->userdata('band') == "12m") { echo "selected=\"selected\""; } ?>>12m</option>
-                      <option value="10m" <?php if($this->session->userdata('band') == "10m") { echo "selected=\"selected\""; } ?>>10m</option>
-                    </optgroup>
-
-                    <optgroup label="VHF">
-                      <option value="6m" <?php if($this->session->userdata('band') == "6m") { echo "selected=\"selected\""; } ?>>6m</option>
-                      <option value="4m" <?php if($this->session->userdata('band') == "4m") { echo "selected=\"selected\""; } ?>>4m</option>
-                      <option value="2m" <?php if($this->session->userdata('band') == "2m") { echo "selected=\"selected\""; } ?>>2m</option>
-                    </optgroup>
-
-                    <optgroup label="UHF">
-                      <option value="70cm" <?php if($this->session->userdata('band') == "70cm") { echo "selected=\"selected\""; } ?>>70cm</option>
-                      <option value="23cm" <?php if($this->session->userdata('band') == "23cm") { echo "selected=\"selected\""; } ?>>23cm</option>
-                      <option value="13cm" <?php if($this->session->userdata('band') == "13cm") { echo "selected=\"selected\""; } ?>>13cm</option>
-                      <option value="9cm" <?php if($this->session->userdata('band') == "9cm") { echo "selected=\"selected\""; } ?>>9cm</option>
-                    </optgroup>
-
-                    <optgroup label="Microwave">
-                      <option value="6cm" <?php if($this->session->userdata('band') == "6cm") { echo "selected=\"selected\""; } ?>>6cm</option>
-                      <option value="3cm" <?php if($this->session->userdata('band') == "3cm") { echo "selected=\"selected\""; } ?>>3cm</option>
-                    </optgroup>
+                  <?php foreach($bands as $key=>$bandgroup) {
+                          echo '<optgroup label="' . strtoupper($key) . '">';
+                          foreach($bandgroup as $band) {
+                            echo '<option value="' . $band . '"';
+                              if ($this->session->userdata('band') == $band) echo ' selected';
+                              echo '>' . $band . '</option>'."\n";
+                          }
+                          echo '</optgroup>';
+                        }
+                  ?>
                   </select>
                 </div>
               </div>
@@ -147,7 +135,7 @@
               </div>
 
               <div class="form-group row">
-                  <label for="locator" class="col-sm-3 col-form-label"><?php echo $this->lang->line('gen_hamradio_locator'); ?></label>
+                  <label for="locator" class="col-sm-3 col-form-label"><?php echo $this->lang->line('gen_hamradio_gridsquare'); ?></label>
                   <div class="col-sm-9">
                     <input type="text" class="form-control form-control-sm" name="locator" id="locator" value="">
                     <small id="locator_info" class="form-text text-muted"></small>
@@ -200,36 +188,16 @@
                   <select id="band_rx" class="form-control" name="band_rx">
                     <option value="" <?php if($this->session->userdata('band_rx') == "") { echo "selected=\"selected\""; } ?>></option>
 
-                    <optgroup label="HF">
-                      <option value="160m" <?php if($this->session->userdata('band_rx') == "160m") { echo "selected=\"selected\""; } ?>>160m</option>
-                      <option value="80m" <?php if($this->session->userdata('band_rx') == "80m") { echo "selected=\"selected\""; } ?>>80m</option>
-                      <option value="60m" <?php if($this->session->userdata('band_rx') == "60m") { echo "selected=\"selected\""; } ?>>60m</option>
-                      <option value="40m" <?php if($this->session->userdata('band_rx') == "40m") { echo "selected=\"selected\""; } ?>>40m</option>
-                      <option value="30m" <?php if($this->session->userdata('band_rx') == "30m") { echo "selected=\"selected\""; } ?>>30m</option>
-                      <option value="20m" <?php if($this->session->userdata('band_rx') == "20m") { echo "selected=\"selected\""; } ?>>20m</option>
-                      <option value="17m" <?php if($this->session->userdata('band_rx') == "17m") { echo "selected=\"selected\""; } ?>>17m</option>
-                      <option value="15m" <?php if($this->session->userdata('band_rx') == "15m") { echo "selected=\"selected\""; } ?>>15m</option>
-                      <option value="12m" <?php if($this->session->userdata('band_rx') == "12m") { echo "selected=\"selected\""; } ?>>12m</option>
-                      <option value="10m" <?php if($this->session->userdata('band_rx') == "10m") { echo "selected=\"selected\""; } ?>>10m</option>
-                    </optgroup>
-
-                    <optgroup label="VHF">
-                      <option value="6m" <?php if($this->session->userdata('band_rx') == "6m") { echo "selected=\"selected\""; } ?>>6m</option>
-                      <option value="4m" <?php if($this->session->userdata('band_rx') == "4m") { echo "selected=\"selected\""; } ?>>4m</option>
-                      <option value="2m" <?php if($this->session->userdata('band_rx') == "2m") { echo "selected=\"selected\""; } ?>>2m</option>
-                    </optgroup>
-
-                    <optgroup label="UHF">
-                      <option value="70cm" <?php if($this->session->userdata('band_rx') == "70cm") { echo "selected=\"selected\""; } ?>>70cm</option>
-                      <option value="23cm" <?php if($this->session->userdata('band_rx') == "23cm") { echo "selected=\"selected\""; } ?>>23cm</option>
-                      <option value="13cm" <?php if($this->session->userdata('band_rx') == "13cm") { echo "selected=\"selected\""; } ?>>13cm</option>
-                      <option value="9cm" <?php if($this->session->userdata('band_rx') == "9cm") { echo "selected=\"selected\""; } ?>>9cm</option>
-                    </optgroup>
-
-                    <optgroup label="Microwave">
-                      <option value="6cm" <?php if($this->session->userdata('band_rx') == "6cm") { echo "selected=\"selected\""; } ?>>6cm</option>
-                      <option value="3cm" <?php if($this->session->userdata('band_rx') == "3cm") { echo "selected=\"selected\""; } ?>>3cm</option>
-                    </optgroup>
+                  <?php foreach($bands as $key=>$bandgroup) {
+                          echo '<optgroup label="' . strtoupper($key) . '">';
+                          foreach($bandgroup as $band) {
+                            echo '<option value="' . $band . '"';
+                              if ($this->session->userdata('band_rx') == $band) echo ' selected';
+                              echo '>' . $band . '</option>'."\n";
+                          }
+                          echo '</optgroup>';
+                        }
+                  ?>
                   </select>
             </div>
 
@@ -269,6 +237,7 @@
               <label for="selectPropagation"><?php echo $this->lang->line('gen_hamradio_propagation_mode'); ?></label>
               <select class="custom-select" id="selectPropagation" name="prop_mode">
                 <option value="" <?php if(!empty($this->session->userdata('prop_mode'))) { echo "selected=\"selected\""; } ?>></option>
+                <option value="AS" <?php if($this->session->userdata('prop_mode') == "AS") { echo "selected=\"selected\""; } ?>>Aircraft Scatter</option>
                 <option value="AUR" <?php if($this->session->userdata('prop_mode') == "AUR") { echo "selected=\"selected\""; } ?>>Aurora</option>
                 <option value="AUE" <?php if($this->session->userdata('prop_mode') == "AUE") { echo "selected=\"selected\""; } ?>>Aurora-E</option>
                 <option value="BS" <?php if($this->session->userdata('prop_mode') == "BS") { echo "selected=\"selected\""; } ?>>Back scatter</option>
@@ -366,10 +335,26 @@
                     </select>
             </div>
 
-            <div class="form-group">
-              <label for="sota_ref"><?php echo $this->lang->line('gen_hamradio_sota_reference'); ?></label>
-              <input class="form-control" id="sota_ref" type="text" name="sota_ref" value="" />
-              <small id="sotaRefHelp" class="form-text text-muted"><?php echo $this->lang->line('qso_sota_ref_helptext'); ?></small>
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="sota_ref"><?php echo $this->lang->line('gen_hamradio_sota_reference'); ?></label>
+                <input class="form-control" id="sota_ref" type="text" name="sota_ref" value="" />
+                <small id="sotaRefHelp" class="form-text text-muted"><?php echo $this->lang->line('qso_sota_ref_helptext'); ?></small>
+              </div>
+              <div class="form-group col-md-3 align-self-center">
+                <small id="sota_info" class="badge badge-secondary"></small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="wwff_ref"><?php echo $this->lang->line('gen_hamradio_wwff_reference'); ?></label>
+                <input class="form-control" id="wwff_ref" type="text" name="wwff_ref" value="" />
+                <small id="wwffRefHelp" class="form-text text-muted"><?php echo $this->lang->line('qso_wwff_ref_helptext'); ?></small>
+              </div>
+              <div class="form-group col-md-3 align-self-center">
+                <small id="wwff_info" class="badge badge-secondary"></small>
+              </div>
             </div>
 
             <div class="form-group">
@@ -431,6 +416,8 @@
                   <option value="N" selected="selected"><?php echo $this->lang->line('general_word_no'); ?></option>
                   <option value="Y"><?php echo $this->lang->line('general_word_yes'); ?></option>
                   <option value="R"><?php echo $this->lang->line('general_word_requested'); ?></option>
+                  <option value="Q"><?php echo $this->lang->line('general_word_queued'); ?></option>
+                  <option value="I"><?php echo $this->lang->line('general_word_invalid_ignore'); ?></option>
                 </select>
               </div>
             </div>
@@ -442,6 +429,8 @@
                  <option value="" selected="selected"><?php echo $this->lang->line('general_word_method'); ?></option>
                  <option value="D"><?php echo $this->lang->line('general_word_qslcard_direct'); ?></option>
                  <option value="B"><?php echo $this->lang->line('general_word_qslcard_bureau'); ?></option>
+                 <option value="E"><?php echo $this->lang->line('general_word_qslcard_electronic'); ?></option>
+                 <option value="M"><?php echo $this->lang->line('general_word_qslcard_manager'); ?></option>
                 </select>
               </div>
             </div>
@@ -453,6 +442,13 @@
               </div>
             </div>
 
+            <div class="alert alert-info" role="alert">
+              <span class="badge badge-info"><?php echo $this->lang->line('general_word_info'); ?></span> <?php echo $this->lang->line('qsl_notes_helptext'); ?>
+            </div>
+           <div class="form-group">
+              <label for="qslmsg"><?php echo $this->lang->line('general_word_notes'); ?></label>
+              <textarea  type="text" class="form-control" id="qslmsg" name="qslmsg" rows="5"></textarea>
+            </div>
           </div>
         </div>
 
@@ -495,6 +491,17 @@
         <div class="card-body callsign-suggestions"></div>
     </div>
 
+    <?php if ($this->session->userdata('user_show_profile_image')) { ?>
+    <div class="card callsign-image" id="callsign-image" style="display: none;">
+        <div class="card-header"><h4 style="font-size: 16px; font-weight: bold;" class="card-title"><?php echo $this->lang->line('qso_title_image'); ?></h4></div>
+
+        <div class="card-body callsign-image">
+            <div class="callsign-image-content" id="callsign-image-content">
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
     <div class="card previous-qsos">
       <div class="card-header"><h4 class="card-title" style="font-size: 16px; font-weight: bold;"><?php echo $this->lang->line('qso_title_pervious_contacts'); ?></h4></div>
 
@@ -525,7 +532,8 @@
 			  }
 
 			  $i = 0;
-              foreach ($query->result() as $row) {
+            if($query != false) {  
+            foreach ($query->result() as $row) {
               	echo '<tr class="tr'.($i & 1).'">';
                     echo '<td>';
 						$timestamp = strtotime($row->COL_TIME_ON);
@@ -545,7 +553,7 @@
                     <td><?php echo $row->COL_BAND; ?></td>
                     <?php } ?>
                   </tr>
-              <?php $i++; } ?>
+              <?php $i++; } } ?>
             </table>
           </div>
         </div>

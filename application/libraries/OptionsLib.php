@@ -45,15 +45,32 @@ class OptionsLib {
     function get_option($option_name) {
         // Make Codeigniter functions available to library
         $CI =& get_instance();
-
-        //Load the options model
-        $CI->load->model('options_model');
-        
-        // call library function to get options value
-        $options_result = $CI->options_model->item($option_name);
-
-        // return option_value as a string
-        return $options_result;
+        if (strpos($option_name, 'option_') !== false) { 
+            if(!$CI->config->item($option_name)) {
+                 //Load the options model
+                $CI->load->model('options_model');
+                $removed_options_tag = trim($option_name, 'option_');
+                // call library function to get options value
+                $options_result = $CI->options_model->item($removed_options_tag);
+                    
+                // return option_value as a string
+                return $options_result;
+            } else {
+                return $CI->config->item($option_name);
+            }
+        } else {
+            if(!$CI->config->item($option_name)) {
+                //Load the options model
+               $CI->load->model('options_model');
+               // call library function to get options value
+               $options_result = $CI->options_model->item($option_name);
+                   
+               // return option_value as a string
+               return $options_result;
+           } else {
+                return $CI->config->item($option_name);
+           }
+        }
     }
 
     // Function to save new option to options table
@@ -72,7 +89,7 @@ class OptionsLib {
     }
 
     // Function to update options within the options table
-    function update($option_name, $option_value) {
+    function update($option_name, $option_value, $auto_load = NULL) {
         // Make Codeigniter functions available to library
         $CI =& get_instance();
 
@@ -80,7 +97,7 @@ class OptionsLib {
         $CI->load->model('options_model');
         
         // call library function to save update
-        $result = $CI->options_model->update($option_name, $option_value);
+        $result = $CI->options_model->update($option_name, $option_value, $auto_load);
 
         // return True or False on whether its completed.
         return $result;

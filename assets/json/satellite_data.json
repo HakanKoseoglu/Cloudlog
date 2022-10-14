@@ -263,6 +263,18 @@
          ]
       }
    },
+   "MO-112":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"PKT",
+               "Uplink_Freq":"145987500",
+               "Downlink_Mode":"PKT",
+               "Downlink_Freq":"436925000"
+            }
+         ]
+      }
+   },
    "NO-84":{
       "Modes":{
          "A/U":[
@@ -319,7 +331,7 @@
       "Modes":{
          "S/X":[
             {
-               "Uplink_Mode":"LSB",
+               "Uplink_Mode":"USB",
                "Uplink_Freq":"2400175000",
                "Downlink_Mode":"USB",
                "Downlink_Freq":"10489675000"
@@ -339,6 +351,18 @@
          ]
       }
    },
+   "HO-113":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"LSB",
+               "Uplink_Freq":"145870000",
+               "Downlink_Mode":"USB",
+               "Downlink_Freq":"435180000"
+            }
+         ]
+      }
+   },
    "SO-50":{
       "Modes":{
          "V/U":[
@@ -347,6 +371,126 @@
                "Uplink_Freq":"145850000",
                "Downlink_Mode":"FM",
                "Downlink_Freq":"436795000"
+            }
+         ]
+      }
+   },
+   "TEVEL-1":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-2":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-3":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-4":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-5":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-6":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-7":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "TEVEL-8":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145970000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436400000"
+            }
+         ]
+      }
+   },
+   "EASAT-2":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145875000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436666000"
+            }
+         ]
+      }
+   },
+   "HADES":{
+      "Modes":{
+         "V/U":[
+            {
+               "Uplink_Mode":"FM",
+               "Uplink_Freq":"145925000",
+               "Downlink_Mode":"FM",
+               "Downlink_Freq":"436888000"
             }
          ]
       }

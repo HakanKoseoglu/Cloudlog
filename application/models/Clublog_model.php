@@ -2,9 +2,12 @@
 
 class Clublog_model extends CI_Model {
 
-	function __construct()
-	{
-		parent::__construct();
+	function get_clublog_users() {
+		$this->db->select('user_clublog_name, user_clublog_password, user_id');
+		$this->db->where('coalesce(user_clublog_name, "") != ""');
+		$this->db->where('coalesce(user_clublog_password, "") != ""');
+		$query = $this->db->get($this->config->item('auth_table'));
+		return $query->result();
 	}
 
 	function get_clublog_auth_info($username) {
@@ -57,6 +60,35 @@ class Clublog_model extends CI_Model {
 		$this->db->where("station_id", $station_id);
 		$this->db->where("COL_CLUBLOG_QSO_UPLOAD_STATUS", "Y");
 		$this->db->update($this->config->item('table_name'), $data);
+	}
+
+	function get_clublog_qsos($station_id){
+		$this->db->join('station_profile', 'station_profile.station_id = '.$this->config->item('table_name').'.station_id');
+		$this->db->where($this->config->item('table_name').'.station_id', $station_id);
+		$this->db->group_start();
+		$this->db->where("COL_CLUBLOG_QSO_UPLOAD_STATUS", null);
+		$this->db->or_where("COL_CLUBLOG_QSO_UPLOAD_STATUS", "");
+		$this->db->or_where("COL_CLUBLOG_QSO_UPLOAD_STATUS", "N");
+		$this->db->group_end();
+	
+		$query = $this->db->get($this->config->item('table_name'));
+
+		return $query;
+	  }
+
+	  function all_with_count($userid) {
+		$this->db->select('station_profile.station_id, station_profile.station_callsign, count('.$this->config->item('table_name').'.station_id) as qso_total');
+        $this->db->from('station_profile');
+        $this->db->join($this->config->item('table_name'),'station_profile.station_id = '.$this->config->item('table_name').'.station_id','left');
+       	$this->db->group_by('station_profile.station_id');
+		$this->db->where('station_profile.user_id', $userid);
+		$this->db->group_start();
+		$this->db->where("COL_CLUBLOG_QSO_UPLOAD_STATUS", null);
+		$this->db->or_where("COL_CLUBLOG_QSO_UPLOAD_STATUS", "");
+		$this->db->or_where("COL_CLUBLOG_QSO_UPLOAD_STATUS", "N");
+		$this->db->group_end();
+		
+        return $this->db->get();
 	}
 }
 

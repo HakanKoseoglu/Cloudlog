@@ -2,90 +2,86 @@
 
 	class Cat extends CI_Model {
 
-		function __construct()
-		{
-			// Call the Model constructor
-			parent::__construct();
-		}
+		function update($result, $user_id) {
 
-		function update($result) {
-		
-			$this->db->where('radio', $result['radio']); 
+			$timestamp = gmdate("Y-m-d H:i:s");
+
+			if (isset($result['prop_mode'])) {
+				$prop_mode = $result['prop_mode'];
+			// For backward compatibility, SatPC32 does not set propergation mode
+			} else if (isset($result['sat_name'])) {
+				$prop_mode = "SAT";
+			} else {
+				$prop_mode = NULL;
+			}
+
+			$this->db->where('radio', $result['radio']);
+			$this->db->where('user_id', $user_id);
 			$query = $this->db->get('cat');
-			
+
+			// Let's keep uplink_freq, downlink_freq, uplink_mode and downlink_mode for backward compatibility
+			$data = array(
+				'prop_mode' => $prop_mode,
+				'power' => $result['power'] ?? NULL,
+				'sat_name' => $result['sat_name'] ?? NULL,
+				'timestamp' => $timestamp,
+			);
+			if (isset($result['frequency']) && $result['frequency'] != "NULL") {
+				$data['frequency'] = $result['frequency'];
+			} else {
+				$data['frequency'] = $result['uplink_freq'];
+			}
+			if (isset($result['mode']) && $result['mode'] != "NULL") {
+				$data['mode'] = $result['mode'];
+			} else {
+				$data['mode'] = $result['uplink_mode'];
+			}
+			if (isset($result['frequency_rx'])) {
+				$data['frequency_rx'] = $result['frequency_rx'];
+			} else if (isset($result['downlink_freq']) && $result['downlink_freq'] != "NULL") {
+				$data['frequency_rx'] = $result['downlink_freq'];
+			} else {
+				$data['frequency_rx'] = NULL;
+			}
+			if (isset($result['mode_rx'])) {
+				$data['mode_rx'] = $result['mode_rx'];
+			} else if (isset($result['downlink_mode']) && $result['downlink_mode'] != "NULL") {
+				$data['mode_rx'] = $result['downlink_mode'];
+			} else {
+				$data['mode_rx'] = NULL;
+			}
+
 			if ($query->num_rows() > 0)
 			{
-				if($result['radio'] == "SatPC32") {
-					// Update the record
-					foreach ($query->result() as $row)
-					{
-						$radio_id = $row->id;
-						
-						$data = array(
-							'sat_name' => $result['sat_name'],
-							'downlink_freq' => $result['downlink_freq'],
-							'uplink_freq' => $result['uplink_freq'],
-							'downlink_mode' => $result['downlink_mode'],
-							'uplink_mode' => $result['uplink_mode'],
-						);
+				// Update the record
+				foreach ($query->result() as $row)
+				{
+					$radio_id = $row->id;
 
-						$this->db->where('id', $radio_id);
-						$this->db->update('cat', $data); 
-					}
-				} else {
-					// Update the record
-					foreach ($query->result() as $row)
-					{
-						$radio_id = $row->id;
-					
-						$data = array(
-						'frequency' => $result['frequency'],
-						'mode' => $result['mode'],
-						'timestamp' => $result['timestamp'],
-						);
-
-						$this->db->where('id', $radio_id);
-						$this->db->update('cat', $data); 
-					}
+					$this->db->where('id', $radio_id);
+					$this->db->where('user_id', $user_id);
+					$this->db->update('cat', $data);
 				}
 			} else {
 				// Add a new record
-				
-				if($result['radio'] == "SatPC32") {
-					$data = array(
-						'radio' => $result['radio'],
-						'frequency' => $result['frequency'],
-						'mode' => $result['mode'],
-						'sat_name' => $result['sat_name'],
-						'downlink_freq' => $result['downlink_freq'],
-						'uplink_freq' => $result['uplink_freq'],
-						'downlink_mode' => $result['downlink_mode'],
-						'uplink_mode' => $result['uplink_mode'],
-					);
-				} else {
-					$data = array(
-						'radio' => $result['radio'],
-						'frequency' => $result['frequency'],
-						'mode' => $result['mode'],
-						'timestamp' => $result['timestamp'],
-					);
-				}
+				$data['radio'] = $result['radio'];
+				$data['user_id'] = $user_id;
 
-				$this->db->insert('cat', $data); 
-
+				$this->db->insert('cat', $data);
 			}
 		}
-		
-	
+
 		function status() {
-			//$this->db->where('radio', $result['radio']); 
+			//$this->db->where('radio', $result['radio']);
+			$this->db->where('user_id', $this->session->userdata('user_id'));
 			$query = $this->db->get('cat');
-			
+
 			return $query;
 		}
 
 		function recent_status() {
-			$this->db->where("timestamp > date_sub(now(), interval 15 minute)", NULL, FALSE);
+			$this->db->where('user_id', $this->session->userdata('user_id'));
+			$this->db->where("timestamp > date_sub(UTC_TIMESTAMP(), interval 15 minute)", NULL, FALSE);
 
 			$query = $this->db->get('cat');
 			return $query;
@@ -94,27 +90,23 @@
 		/* Return list of radios */
 		function radios() {
 			$this->db->select('id, radio');
+			$this->db->where('user_id', $this->session->userdata('user_id'));
 			$query = $this->db->get('cat');
-			
+
 			return $query;
 		}
-		
 
 		function radio_status($id) {
-
-			return $this->db->query('SELECT *, CONVERT_TZ(`timestamp`, @@session.time_zone, \'+00:00\' ) as newtime FROM `cat` WHERE id = '.$id.' ');
-
+			$sql = 'SELECT * FROM `cat` WHERE id = ' . $id . ' and user_id =' . $this->session->userdata('user_id');
+			return $this->db->query($sql);
 		}
-
 
 		function delete($id) {
 			$this->db->where('id', $id);
-			$this->db->delete('cat'); 
-			
+			$this->db->where('user_id', $this->session->userdata('user_id'));
+			$this->db->delete('cat');
+
 			return true;
 		}
-		
-
-
 	}
 ?>

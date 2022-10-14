@@ -7,7 +7,6 @@ class API extends CI_Controller {
 	{
 	}
 
-
 	/*
 		TODOs
 		- Search Callsign (Return Json)
@@ -43,8 +42,13 @@ class API extends CI_Controller {
 	function help()
 	{
 		$this->load->model('user_model');
-		if(!$this->user_model->authorize(99)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
 
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 
 		$this->load->model('api_model');
 
@@ -61,7 +65,12 @@ class API extends CI_Controller {
 	function edit($key) {
 		$this->load->model('user_model');
 
-		if(!$this->user_model->authorize(99)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 
 		$this->load->model('api_model');
 
@@ -97,7 +106,13 @@ class API extends CI_Controller {
 
 	function generate($rights) {
 		$this->load->model('user_model');
-		if(!$this->user_model->authorize(99)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
+
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 
 
 		$this->load->model('api_model');
@@ -109,7 +124,13 @@ class API extends CI_Controller {
 
 	function delete($key) {
 		$this->load->model('user_model');
-		if(!$this->user_model->authorize(99)) { $this->session->set_flashdata('notice', 'You\'re not allowed to do that!'); redirect('dashboard'); }
+
+		// Check if users logged in
+
+		if($this->user_model->validate_session() == 0) {
+			// user is not logged in
+			redirect('user/login');
+		}
 
 
 		$this->load->model('api_model');
@@ -400,7 +421,10 @@ class API extends CI_Controller {
 
 		// Decode JSON and store
 		$obj = json_decode(file_get_contents("php://input"), true);
-
+		if ($obj === NULL) {
+		    echo json_encode(['status' => 'failed', 'reason' => "wrong JSON"]);
+		    die();
+		}
 
 		if(!isset($obj['key']) || $this->api_model->authorize($obj['key']) == 0) {
 		   http_response_code(401);
@@ -429,9 +453,9 @@ class API extends CI_Controller {
 
 
 				if(isset($obj['station_profile_id'])) {
-					$this->logbook_model->import($record, $obj['station_profile_id'], NULL, NULL, NULL, NULL, false, false);
+					$this->logbook_model->import($record, $obj['station_profile_id'], NULL, NULL, NULL, NULL, false, false, true);
 				} else {
-					$this->logbook_model->import($record, 0, NULL, NULL, NULL, NULL, false, false);
+					$this->logbook_model->import($record, 0, NULL, NULL, NULL, NULL, false, false, true);
 				}
 
 			};
@@ -476,8 +500,10 @@ class API extends CI_Controller {
 		   die();
 		}
 
+		$user_id = $this->api_model->key_userid($obj['key']);
+
 		// Store Result to Database
-		$this->cat->update($obj);
+		$this->cat->update($obj, $user_id);
 
 		// Return Message
 

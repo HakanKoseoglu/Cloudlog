@@ -17,7 +17,7 @@
   <div class="card-body">
     <p class="card-text">Station Locations define operating locations, such as your QTH, a friend's QTH, or a portable station.</p>
 	<p class="card-text">Similar to logbooks, a station profile keeps a set of QSOs together.</p>
-	<p class="card-text">Only one logbook may be active at a time. In the table below this is shown with the "Active Logbook" badge.</p>
+	<p class="card-text">Only one station may be active at a time. In the table below this is shown with the "Active Station" badge.</p>
 
 	  <p><a href="<?php echo site_url('station/create'); ?>" class="btn btn-primary"><i class="fas fa-plus"></i> Create a Station Location</a></p>
 	  
@@ -38,7 +38,7 @@
 		<?php } ?>
 	  
 		<div class="table-responsive">
-		<table class="table table-striped">
+		<table id="station_locations_table" class="table table-striped">
 			<thead>
 				<tr>
 					<th scope="col">Profile Name</th>
@@ -60,11 +60,11 @@
 					<td><?php echo $row->station_callsign;?></td>
 					<td><?php echo $row->station_country;?></td>
 					<td><?php echo $row->station_gridsquare;?></td>
-					<td style="text-align: center">
-						<?php if($row->station_active != 1) { ?>			
-							<a href="<?php echo site_url('station/set_active/').$current_active."/".$row->station_id; ?>" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Are you sure you want to make logbook <?php echo $row->station_profile_name; ?> the active logbook?');">Set Active</a>
+					<td style="text-align: center" data-order="<?php echo $row->station_id;?>">
+						<?php if($row->station_active != 1) { ?>
+							<a href="<?php echo site_url('station/set_active/').$current_active."/".$row->station_id; ?>" class="btn btn-outline-secondary btn-sm" onclick="return confirm('Are you sure you want to make station <?php echo $row->station_profile_name; ?> the active station?');">Set Active</a>
 						<?php } else { ?>
-							<span class="badge badge-success">Active Logbook</span>
+							<span class="badge badge-success">Active Station</span>
 						<?php } ?>
 
 						<?php if($is_there_qsos_with_no_station_id >= 1) { ?>
@@ -75,13 +75,20 @@
 						<span class="badge badge-light"><?php echo $row->qso_total;?> QSOs</span>
 					</td>
 					<td>
+						<?php if($row->user_id == "") { ?>
+							<a href="<?php echo site_url('station/claim_user')."/".$row->station_id; ?>" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-plus"></i> Claim Ownership</a>
+						<?php } ?>
 						<a href="<?php echo site_url('station/edit')."/".$row->station_id; ?>" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit"></i> Edit</a>
+						<a href="<?php echo site_url('station/copy')."/".$row->station_id; ?>" class="btn btn-outline-primary btn-sm"><i class="fas fa-copy"></i> Copy</a>
 					</td>
                     <td>
                         <a href="<?php echo site_url('station/deletelog')."/".$row->station_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete all QSOs within this station profile?');"><i class="fas fa-trash-alt"></i> Empty Log</a></td>
                     </td>
 					<td>
-						<a href="<?php echo site_url('station/delete')."/".$row->station_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want delete station profile <?php echo $row->station_profile_name; ?> this will delete all QSOs within this station profile?');"><i class="fas fa-trash-alt"></i> Delete Profile</a></td>
+						<?php if($row->station_active != 1) { ?>
+							<a href="<?php echo site_url('station/delete')."/".$row->station_id; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want delete station profile <?php echo $row->station_profile_name; ?> this will delete all QSOs within this station profile?');"><i class="fas fa-trash-alt"></i> Delete Profile</a>
+						<?php } ?>
+					</td>
 				</tr>
 
 				<?php } ?>
